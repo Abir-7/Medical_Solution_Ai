@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+
+
+  medical-solution-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5673:5672"  # Changed left port to avoid conflict with old project
+      - "15673:15672" # Changed left port to avoid conflict with old project
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+
+  medical-solution-postgres:
+    image: postgres:17
+    env_file:
+      - .env
+    ports:
+      - "5435:5432" # Changed left port to avoid conflict with old project
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  
+
+  medical-solution-express:
+    build: .
+    depends_on:
+      - medical-solution-postgres
+      - medical-solution-rabbitmq
+    env_file:
+      - .env
+    ports:
+      - "4001:4500" # Changed left port to avoid conflict with old project
+    volumes:
+      - .:/app
+    command: npm run dev
+
+volumes:
+  pgdata: {}
