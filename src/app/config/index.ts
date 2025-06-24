@@ -17,6 +17,7 @@ export const appConfig = {
     port: process.env.PORT,
     node_env: process.env.NODE_ENV,
     ip: process.env.IP_ADDRESS,
+    baseurl: process.env.BASE_SERVER_URL,
   },
   rabbitMq: {
     url: process.env.RABBITMQ_URL,
@@ -45,5 +46,9 @@ export const appConfig = {
   admin: {
     email: process.env.ADMIN_EMAIL,
     password: process.env.ADMIN_PASSWORD,
+  },
+  ai_key: {
+    gemini_ai: process.env.GEMINI_API_KEY,
+    open_ai: process.env.OPENAI_API_KEY,
   },
 };

@@ -15,6 +15,7 @@
   "description": "",
   "dependencies": {
     "@google-cloud/speech": "^7.1.0",
+    "@google-cloud/vision": "^5.2.0",
     "@google/generative-ai": "^0.24.1",
     "@types/express": "^5.0.0",
     "amqplib": "^0.10.8",
