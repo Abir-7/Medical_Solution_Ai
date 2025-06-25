@@ -13,11 +13,14 @@ import getHashedPassword from "../../utils/helper/getHashedPassword";
 import { jsonWebToken } from "../../utils/jwt/jwt";
 import { appConfig } from "../../config";
 import { dispatchJob } from "../../rabbitMq/jobs";
+import { Specialty } from "../users/userProfile/userProfile.entity";
 
 const createUser = async (data: {
   email: string;
   fullName: string;
   password: string;
+  specialty: Specialty;
+  country: string;
 }) => {
   const userData = {
     email: data.email,
@@ -26,6 +29,8 @@ const createUser = async (data: {
 
   const userProfile = {
     fullName: data.fullName,
+    specialty: data.specialty,
+    country: data.country,
   };
   const otp = getOtp(5).toString();
   const userAuthentication = {

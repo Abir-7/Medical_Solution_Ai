@@ -32,7 +32,7 @@ services:
     env_file:
       - .env
     ports:
-      - "4001:4500" # Changed left port to avoid conflict with old project
+      - "4001:4001" # Changed left port to avoid conflict with old project
     volumes:
       - .:/app
     command: npm run dev

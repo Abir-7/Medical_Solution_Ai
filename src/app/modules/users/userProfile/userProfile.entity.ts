@@ -1,11 +1,15 @@
-import {
-  Entity,
-  Column,
-  OneToOne,
-  JoinColumn,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { Entity, Column, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../user/user.entity";
+
+export enum Specialty {
+  Cardiology = "Cardiology",
+  Dermatology = "Dermatology",
+  Neurology = "Neurology",
+  Pediatrics = "Pediatrics",
+  Orthopedics = "Orthopedics",
+  Oncology = "Oncology",
+  Psychiatry = "Psychiatry",
+}
 
 @Entity({ name: "user_profiles" })
 export class UserProfile {
@@ -15,8 +19,9 @@ export class UserProfile {
   @Column({ type: "varchar" })
   fullName!: string;
 
-  @Column({ type: "varchar", nullable: true })
-  nickname?: string;
+  // Correctly define the specialty column with enum type
+  @Column({ type: "enum", enum: Specialty })
+  specialty?: Specialty;
 
   @Column({ type: "date", nullable: true })
   dateOfBirth?: Date;
@@ -26,6 +31,9 @@ export class UserProfile {
 
   @Column({ type: "varchar", nullable: true })
   address?: string;
+
+  @Column({ type: "varchar" })
+  country!: string;
 
   @Column({ type: "varchar", nullable: true })
   image?: string;

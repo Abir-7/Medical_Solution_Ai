@@ -1,26 +1,47 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  GenerateContentResult,
+  GoogleGenerativeAI,
+} from "@google/generative-ai";
 import { appConfig } from "../config";
 const genAI = new GoogleGenerativeAI(appConfig.ai_key.gemini_ai as string);
 
-export const askGeminiText = async (prompt: string) => {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
-  const result = await model.generateContent(prompt);
-  return result.response.text();
-};
-
-export const analyzeImageWithGemini = async (
-  base64Image: string,
-  prompt: string
+export const askGeminiWithBase64Data = async (
+  prompt: string,
+  base64Data: string,
+  type: "image" | "pdf"
 ) => {
+  // Ensure that the base64Data is passed correctly (as a string)
+  if (typeof base64Data !== "string") {
+    throw new Error("Base64 data should be a string");
+  }
+
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-  const result = await model.generateContent([
-    { text: prompt },
-    {
-      inlineData: {
-        mimeType: "image/jpeg",
-        data: base64Image,
+
+  let result: GenerateContentResult | undefined;
+
+  if (type === "image") {
+    result = await model.generateContent([
+      { text: prompt },
+      {
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: base64Data,
+        },
       },
-    },
-  ]);
-  return result.response.text();
+    ]);
+  }
+
+  if (type === "pdf") {
+    result = await model.generateContent([
+      { text: prompt },
+      {
+        inlineData: {
+          mimeType: "application/pdf",
+          data: base64Data,
+        },
+      },
+    ]);
+  }
+
+  return result?.response ? result.response.text() : "No response from Ai";
 };
