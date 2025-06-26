@@ -11,7 +11,7 @@ dotenv.config();
 
 const getAllUser = async () => {
   const userRepo = myDataSource.getRepository(User);
-  const users = await userRepo.find({ relations: ["userToken"] });
+  const users = await userRepo.find();
 
   return users;
 };
