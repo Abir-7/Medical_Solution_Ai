@@ -5,7 +5,6 @@ import path from "path";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import * as dotenv from "dotenv";
 import { appConfig } from "../../../config";
-import { UserToken } from "../../userToken/userToken.entity";
 
 dotenv.config();
 

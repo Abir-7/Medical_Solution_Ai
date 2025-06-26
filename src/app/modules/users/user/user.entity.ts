@@ -67,5 +67,11 @@ export class User {
     cascade: true,
     eager: true,
   })
+  @JoinColumn()
   userToken!: UserToken;
+
+  toJSON() {
+    const { password, ...user } = this; // Remove password
+    return user;
+  }
 }
