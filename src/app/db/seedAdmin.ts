@@ -2,7 +2,9 @@ import { userRoles } from "../middlewares/auth/auth.interface";
 
 import { User } from "../modules/users/user/user.entity";
 import { UserAuthentication } from "../modules/users/userAuthentication/user_authentication.entity";
+import { Specialty } from "../modules/users/userProfile/userProfile.entity";
 import getHashedPassword from "../utils/helper/getHashedPassword";
+import logger from "../utils/logger";
 import { myDataSource } from "./database";
 
 export async function seedAdmin() {
@@ -24,7 +26,7 @@ export async function seedAdmin() {
       });
 
       if (existingAdmin) {
-        console.log("Admin user already exists, skipping seed.");
+        logger.info("Admin user already exists, skipping seed.");
         return;
       }
 
@@ -34,6 +36,8 @@ export async function seedAdmin() {
         userProfile: {
           fullName: "ADMIN-1",
           phone: "01795377643",
+          specialty: Specialty.Cardiology,
+          country: "N/A",
         },
         authentication: {
           otp: null,
@@ -44,9 +48,9 @@ export async function seedAdmin() {
 
       // 4. Save with cascading profile
       await userRepo.save(adminUser);
-      console.log("Admin user seeded successfully!");
+      logger.info("Admin user seeded successfully!");
     });
   } catch (err) {
-    console.error("Error seeding admin user:", err);
+    logger.error(err);
   }
 }

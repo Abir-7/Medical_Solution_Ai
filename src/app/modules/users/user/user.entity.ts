@@ -15,6 +15,7 @@ import {
   userRole,
   userRoles,
 } from "../../../middlewares/auth/auth.interface";
+import { UserToken } from "../../userToken/userToken.entity";
 
 @Entity({ name: "users" })
 export class User {
@@ -58,8 +59,13 @@ export class User {
   @OneToOne(() => UserProfile, (userProfile) => userProfile, {
     cascade: true,
     eager: true,
-    nullable: true,
   })
   @JoinColumn()
-  userProfile?: UserProfile;
+  userProfile!: UserProfile;
+
+  @OneToOne(() => UserToken, (userToken) => userToken, {
+    cascade: true,
+    eager: true,
+  })
+  userToken!: UserToken;
 }

@@ -1,11 +1,12 @@
 import { Client } from "pg";
 import { appConfig } from "../config";
+import logger from "../utils/logger";
 
 export async function ensureDatabaseExists() {
   const defaultDbConfig = {
     user: appConfig.database.username,
     host: appConfig.database.host,
-    database: "postgres", // connect to default postgres DB
+    database: appConfig.database.type, // connect to default postgres DB
     password: appConfig.database.password,
     port: appConfig.database.port,
   };
@@ -25,12 +26,12 @@ export async function ensureDatabaseExists() {
 
     if (res.rowCount === 0) {
       await client.query(`CREATE DATABASE "${dbName}"`);
-      console.log(`✅ Database "${dbName}" created.`);
+      logger.info(`✅ Database "${dbName}" created.`);
     } else {
-      console.log(`ℹ️ Database "${dbName}" already exists.`);
+      logger.info(`ℹ️ Database "${dbName}" already exists.`);
     }
   } catch (error) {
-    console.error("Error during DB creation check:", error);
+    logger.error("Error during DB creation check:", error);
     throw error;
   } finally {
     await client.end();

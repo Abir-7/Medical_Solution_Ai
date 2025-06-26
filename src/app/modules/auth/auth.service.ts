@@ -1,3 +1,4 @@
+import { UserToken } from "./../userToken/userToken.entity";
 import status from "http-status";
 import { myDataSource } from "../../db/database";
 import AppError from "../../errors/AppError";
@@ -44,6 +45,7 @@ const createUser = async (data: {
     ...userData,
     userProfile: userProfile,
     authentication: userAuthentication,
+    userToken: { token: 0 },
   });
   const savedUser = await userRepo.save(createUser);
 
@@ -57,8 +59,8 @@ const createUser = async (data: {
     type: "email",
     data: {
       to: data.email,
-      subject: "Verify your account",
-      text: `Your OTP is ${otp}`,
+      subject: "Email Verification Code",
+      text: `Your code is: ${otp}`,
     },
   });
 
@@ -70,7 +72,7 @@ const userLogin = async (loginData: { email: string; password: string }) => {
     where: { email: loginData.email },
     relations: ["userProfile", "authentication"],
   });
-  console.log("object", userData);
+
   if (!userData) {
     throw new Error("Invalid credentials: email");
   }
@@ -109,7 +111,7 @@ const userLogin = async (loginData: { email: string; password: string }) => {
   );
 
   return {
-    userData,
+    userData: { ...userData, password: "null" },
     accessToken,
     refreshToken,
   };

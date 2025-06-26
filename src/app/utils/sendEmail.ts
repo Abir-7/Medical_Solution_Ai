@@ -22,7 +22,7 @@ export async function sendEmail(email: string, subject: string, text: string) {
     });
 
     const info = await transporter.sendMail({
-      from: `"AiFinanceHub" ${appConfig.email.from}`, // Sender address
+      from: `"Medical Solution" ${appConfig.email.from}`, // Sender address
       to: email, // Recipient's email
       subject: `${subject}`,
       text: text,
@@ -115,7 +115,7 @@ export async function sendEmail(email: string, subject: string, text: string) {
               <p>${text}</p>
             </div>
             <div class="footer">
-              <p>&copy; ${new Date().getFullYear()} AiFinanceHub. All rights reserved.</p>
+              <p>&copy; ${new Date().getFullYear()} Medical Solution. All rights reserved.</p>
             </div>
           </div>
         </body>

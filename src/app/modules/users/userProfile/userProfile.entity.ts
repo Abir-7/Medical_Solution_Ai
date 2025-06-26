@@ -20,8 +20,13 @@ export class UserProfile {
   fullName!: string;
 
   // Correctly define the specialty column with enum type
-  @Column({ type: "enum", enum: Specialty })
-  specialty?: Specialty;
+  @Column({
+    type: "enum",
+    enum: Specialty,
+    enumName: "specialty_enum",
+    nullable: true,
+  })
+  specialty!: Specialty;
 
   @Column({ type: "date", nullable: true })
   dateOfBirth?: Date;
