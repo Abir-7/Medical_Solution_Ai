@@ -10,5 +10,5 @@ export class TokenPackage {
   @Column({ type: "int" })
   tokenAmount!: number;
   @OneToMany(() => Payment, (payment) => payment.tokenPackageId)
-  paymentData!: Payment;
+  paymentData!: Payment[];
 }

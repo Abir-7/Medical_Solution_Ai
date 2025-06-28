@@ -51,4 +51,11 @@ export const appConfig = {
     gemini_ai: process.env.GEMINI_API_KEY,
     open_ai: process.env.OPENAI_API_KEY,
   },
+
+  payment: {
+    stripe: {
+      secret_key: process.env.SECRET_KEY,
+      webhook: process.env.STRIPE_WEBHOOK_SECRET,
+    },
+  },
 };

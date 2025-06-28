@@ -5,6 +5,8 @@ import { UserProfile } from "../modules/users/userProfile/userProfile.entity";
 import { UserAuthentication } from "../modules/users/userAuthentication/user_authentication.entity";
 import { appConfig } from "../config";
 import { UserToken } from "../modules/userToken/userToken.entity";
+import { Payment } from "../modules/payment/payment.entity";
+import { TokenPackage } from "../modules/TokenPackages/tokenPackages.entity";
 
 export const myDataSource = new DataSource({
   type: appConfig.database.type as "postgres",
@@ -14,7 +16,14 @@ export const myDataSource = new DataSource({
   password: appConfig.database.password,
   //password: "postgres", office
   database: appConfig.database.db_name,
-  entities: [User, UserProfile, UserAuthentication, UserToken],
+  entities: [
+    User,
+    UserProfile,
+    UserAuthentication,
+    UserToken,
+    Payment,
+    TokenPackage,
+  ],
   //logging: true,
   synchronize: true,
 });

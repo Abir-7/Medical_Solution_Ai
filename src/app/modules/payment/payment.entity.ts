@@ -17,8 +17,9 @@ export class Payment {
   @Column({ type: "float" })
   priceAtBuyTime!: number;
   @ManyToOne(() => TokenPackage, (tokenPackage) => tokenPackage.paymentData)
+  @JoinColumn()
   tokenPackageId!: TokenPackage;
   @ManyToOne(() => UserToken, (userToken) => userToken.paymentData)
   @JoinColumn()
-  userToken!: UserToken;
+  userTokenId!: UserToken;
 }

@@ -20,6 +20,6 @@ export class UserToken {
   @OneToOne(() => User, (user) => user.userToken)
   user!: User;
 
-  @OneToMany(() => Payment, (payment) => payment.userToken)
-  paymentData!: Payment;
+  @OneToMany(() => Payment, (payment) => payment.userTokenId)
+  paymentData!: Payment[];
 }

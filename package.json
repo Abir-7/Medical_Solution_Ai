@@ -36,6 +36,7 @@
     "reflect-metadata": "^0.2.2",
     "sharp": "^0.34.2",
     "speech-to-text": "^3.0.2",
+    "stripe": "^18.2.1",
     "tesseract.js": "^6.0.1",
     "ts-node-dev": "^2.0.0",
     "typeorm": "^0.3.21",
