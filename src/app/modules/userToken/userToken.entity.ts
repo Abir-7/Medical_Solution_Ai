@@ -1,8 +1,10 @@
+import { Payment } from "../payment/payment.entity";
 import { User } from "./../users/user/user.entity";
 import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -17,4 +19,7 @@ export class UserToken {
 
   @OneToOne(() => User, (user) => user.userToken)
   user!: User;
+
+  @OneToMany(() => Payment, (payment) => payment.userToken)
+  paymentData!: Payment;
 }

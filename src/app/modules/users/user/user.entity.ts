@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from "typeorm";
 import { UserAuthentication } from "../userAuthentication/user_authentication.entity";
 
@@ -16,6 +17,7 @@ import {
   userRoles,
 } from "../../../middlewares/auth/auth.interface";
 import { UserToken } from "../../userToken/userToken.entity";
+import { Payment } from "../../payment/payment.entity";
 
 @Entity({ name: "users" })
 export class User {
@@ -71,7 +73,7 @@ export class User {
   userToken!: UserToken;
 
   toJSON() {
-    const { password, ...user } = this; // Remove password
+    const { password, authentication, ...user } = this;
     return user;
   }
 }
