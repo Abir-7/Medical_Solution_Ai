@@ -3,7 +3,6 @@ import { User } from "./../users/user/user.entity";
 import {
   Column,
   Entity,
-  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,

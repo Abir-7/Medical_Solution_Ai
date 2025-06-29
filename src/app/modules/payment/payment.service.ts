@@ -1,9 +1,12 @@
+import { myDataSource } from "./../../db/database";
 import Stripe from "stripe";
 import { appConfig } from "../../config";
-import { myDataSource } from "../../db/database";
+
 import { TokenPackage } from "../TokenPackages/tokenPackages.entity";
 import { UserToken } from "../userToken/userToken.entity";
 import { Payment } from "./payment.entity";
+import AppError from "../../errors/AppError";
+import status from "http-status";
 const stripe = new Stripe(appConfig.payment.stripe.secret_key as string);
 
 const createPaymentIntent = async (tokenPackageId: string, userId: string) => {
@@ -58,45 +61,22 @@ const stripeWebhook = async (rawBody: Buffer, sig: string) => {
 
     // Prevent re-processing of already handled events
     if (paymentIntent.status !== "succeeded") {
-      return { status: "skipping, not succeeded yet" }; // Skip if not yet successful
+      return { status: "skipping, not succeeded yet" };
     }
 
     const userTokenRepo = myDataSource.getRepository(UserToken);
     const tokenPackageRepo = myDataSource.getRepository(TokenPackage);
-    const paymentRepo = myDataSource.getRepository(Payment);
 
-    // Fetch userToken and tokenPackage from the DB
-    const userToken = await userTokenRepo.findOne({ where: { id: userId } });
-    const tokenPackage = await tokenPackageRepo.findOne({
-      where: { id: packageId },
+    console.log("User ID:", userId);
+    const userTokenData = await userTokenRepo.findOneBy({ id: `${userId}` });
+    console.log("Token-repo", userTokenData);
+
+    console.log("Token Package ID:", packageId);
+    const tokenPackageData = await tokenPackageRepo.findOneOrFail({
+      where: { id: `${packageId}` },
     });
 
-    // Check if the user or token package was not found
-    if (!userToken || !tokenPackage)
-      throw new Error("User or package not found");
-
-    // Prepare the payment record to save
-    const newPayment = paymentRepo.create({
-      txId: paymentIntent.id,
-      tokenPackageId: tokenPackage,
-      priceAtBuyTime: amount / 100, // Convert to dollars if using cents
-      userTokenId: userToken,
-    });
-
-    // Save payment to DB
-    const savedPayment = await paymentRepo.save(newPayment);
-
-    // Add tokens to the user (increment them)
-    userToken.token += tokenPackage.tokenAmount; // Increment tokens
-    await userTokenRepo.save(userToken); // Save the updated userToken
-
-    return {
-      userId,
-      amount,
-      event: event.type,
-      status: "tokens granted",
-      paymentId: savedPayment.id,
-    };
+    console.log("Token-Package-repo", tokenPackageData);
   }
 
   // Handle other event types if needed (e.g., payment failed, refunds, etc.)
