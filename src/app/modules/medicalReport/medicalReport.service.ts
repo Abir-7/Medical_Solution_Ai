@@ -13,8 +13,6 @@ const getAiResponse = async (path: string) => {
 
   const bse = await convertPDFToBase64(path);
 
-  console.log(path);
-
   if (path.includes("image")) {
     return await askGeminiWithBase64Data(
       "what doctor say in this.?",

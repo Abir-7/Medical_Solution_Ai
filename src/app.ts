@@ -6,6 +6,7 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 import { noRouteFound } from "./app/utils/noRouteFound";
+import { PaymentController } from "./app/modules/payment/payment.controller";
 const app = express();
 
 const corsOption = {
@@ -16,14 +17,21 @@ const corsOption = {
 
 app.use(cors(corsOption));
 app.use(cookieParser());
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.post(
+  "/api/payment/webhook",
+  express.raw({ type: "application/json" }),
+  PaymentController.stripeWebhook
+); // Stripe api
+
+app.use(express.json());
 app.use("/api", router);
 
 app.get("/", (req, res) => {
   res.send("Hello World! This app name is Medical Solution");
 });
+
 app.use(express.static(path.join(process.cwd(), "uploads")));
 app.use(globalErrorHandler);
 app.use(noRouteFound);

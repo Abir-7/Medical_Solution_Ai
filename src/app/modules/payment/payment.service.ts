@@ -21,6 +21,7 @@ const createPaymentIntent = async (tokenPackageId: string, userId: string) => {
   const paymentIntent = await stripe.paymentIntents.create({
     amount,
     currency: "usd", // or your preferred currency
+
     metadata: {
       userId,
       tokenPackageId,
@@ -42,7 +43,7 @@ const stripeWebhook = async (rawBody: Buffer, sig: string) => {
     event = stripe.webhooks.constructEvent(
       rawBody,
       sig,
-      appConfig.payment.stripe.webhook as string
+      appConfig.payment.stripe.webhook?.trim() as string
     );
   } catch (err: any) {
     throw new Error(`Webhook signature verification failed: ${err.message}`);
@@ -54,6 +55,11 @@ const stripeWebhook = async (rawBody: Buffer, sig: string) => {
     const userId = paymentIntent.metadata.userId;
     const packageId = paymentIntent.metadata.tokenPackageId;
     const amount = paymentIntent.amount;
+
+    // Prevent re-processing of already handled events
+    if (paymentIntent.status !== "succeeded") {
+      return { status: "skipping, not succeeded yet" }; // Skip if not yet successful
+    }
 
     const userTokenRepo = myDataSource.getRepository(UserToken);
     const tokenPackageRepo = myDataSource.getRepository(TokenPackage);

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import bodyParser from "body-parser";
+import express from "express";
 import { PaymentController } from "./payment.controller";
 import { auth } from "../../middlewares/auth/auth";
 const router = Router();
@@ -10,9 +10,9 @@ router.get(
   PaymentController.createPaymentIntent
 );
 
-router.post(
-  "/webhook",
-  bodyParser.raw({ type: "application/json" }),
-  PaymentController.stripeWebhook
-);
+// router.post(
+//   "/webhook",
+//   express.raw({ type: "application/json" }),
+//   PaymentController.stripeWebhook
+// );
 export const PaymentRoute = router;
