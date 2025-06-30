@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { auth } from "../../middlewares/auth/auth";
+
 import { TokenPackageController } from "./tokenPackages.controller";
+import { auth } from "../../middleware/auth/auth";
 
 const router = Router();
-router.post("/new", auth("SUPERADMIN"), TokenPackageController.addNewPackage);
-router.get("/", auth("SUPERADMIN"), TokenPackageController.getAllPackage);
+router.post("/new", auth("ADMIN"), TokenPackageController.addNewPackage);
+router.get("/", auth("ADMIN"), TokenPackageController.getAllPackage);
 
 export const TokenPackageRoute = router;

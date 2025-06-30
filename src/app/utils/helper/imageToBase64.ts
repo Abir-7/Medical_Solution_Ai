@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import fs from "fs";
 
 export const imageToBase64 = async (path: string) => {

@@ -1,20 +1,23 @@
 import { Router } from "express";
-import { auth } from "../../../middlewares/auth/auth";
-import { upload } from "../../../middlewares/fileUpload/fileUploadHandler";
+import zodValidator from "../../../middleware/zodValidator";
+import { zodUpdateProfileSchema } from "./userProfile.validation";
+import { upload } from "../../../middleware/fileUpload/fileUploadHandler";
+import { auth } from "../../../middleware/auth/auth";
 import { UserProfileController } from "./userProfile.controller";
 
 const router = Router();
 
 router.patch(
   "/update-profile-image",
-  auth("SUPERADMIN", "USER"),
+  auth("ADMIN", "USER"),
   upload.single("image"),
   UserProfileController.updateProfileImage
 );
 
 router.patch(
   "/update-profile-data",
-  auth("SUPERADMIN", "USER"),
+  auth("ADMIN", "USER"),
+  zodValidator(zodUpdateProfileSchema),
   UserProfileController.updateProfileData
 );
 

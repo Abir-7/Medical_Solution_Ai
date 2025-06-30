@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import logger from "../../utils/serverTools/logger";
 import { getRabbitConnection } from "../rabbitMq";
 import { JobPayload } from "./types";
 import { handleEmailJob } from "./worker/email.worker";
@@ -9,7 +11,7 @@ export const startJobConsumer = async () => {
   const channel = await conn.createChannel();
   await channel.assertQueue(QUEUE, { durable: true });
 
-  console.log("🔁 Waiting for jobs...");
+  logger.info("🔁 Waiting for jobs...");
 
   channel.consume(
     QUEUE,
@@ -24,12 +26,12 @@ export const startJobConsumer = async () => {
             break;
           // Add more job types here
           default:
-            console.warn("Unknown job type:", payload.type);
+            logger.warn("Unknown job type:", payload.type);
         }
 
         channel.ack(msg);
       } catch (err) {
-        console.error("Job failed:", err);
+        logger.error("Job failed:", err);
         // channel.nack(msg, false, true); // optional retry
       }
     },

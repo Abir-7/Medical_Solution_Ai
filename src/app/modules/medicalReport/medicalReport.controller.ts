@@ -1,7 +1,8 @@
 import status from "http-status";
-import catchAsync from "../../utils/catchAsync";
-import sendResponse from "../../utils/sendResponse";
+
 import { MedicalReportService } from "./medicalReport.service";
+import catchAsync from "../../utils/serverTools/catchAsync";
+import sendResponse from "../../utils/serverTools/sendResponse";
 
 const getAiResponse = catchAsync(async (req, res) => {
   const result = await MedicalReportService.getAiResponse(

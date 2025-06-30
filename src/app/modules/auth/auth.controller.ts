@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import status from "http-status";
-import catchAsync from "../../utils/catchAsync";
-import sendResponse from "../../utils/sendResponse";
+import catchAsync from "../../utils/serverTools/catchAsync";
+import sendResponse from "../../utils/serverTools/sendResponse";
 import { AuthService } from "./auth.service";
 import { appConfig } from "../../config";
 
@@ -21,10 +21,8 @@ const userLogin = catchAsync(async (req, res, next) => {
   const result = await AuthService.userLogin(req.body);
 
   res.cookie("refreshToken", result.refreshToken, {
+    secure: appConfig.server.node_env === "production",
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    //sameSite: "strict",
-    maxAge: 365 * 24 * 60 * 60 * 1000, // 365 days in milliseconds
   });
 
   sendResponse(res, {
@@ -37,12 +35,12 @@ const userLogin = catchAsync(async (req, res, next) => {
 
 const verifyUser = catchAsync(async (req, res, next) => {
   const { email, otp } = req.body;
-  const result = await AuthService.verifyUser(email, otp);
+  const result = await AuthService.verifyUser(email, Number(otp));
 
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
-    message: "Verification successfull",
+    message: "Email successfully verified.",
     data: result,
   });
 });
@@ -50,17 +48,6 @@ const verifyUser = catchAsync(async (req, res, next) => {
 const forgotPasswordRequest = catchAsync(async (req, res, next) => {
   const { email } = req.body;
   const result = await AuthService.forgotPasswordRequest(email);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: status.OK,
-    message: "A verification code is sent to your email.",
-    data: result,
-  });
-});
-const resendCode = catchAsync(async (req, res, next) => {
-  const { email } = req.body;
-  const result = await AuthService.resendCode(email);
 
   sendResponse(res, {
     success: true,
@@ -85,7 +72,8 @@ const resetPassword = catchAsync(async (req, res, next) => {
 });
 
 const getNewAccessToken = catchAsync(async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
+  const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
+
   const result = await AuthService.getNewAccessToken(refreshToken);
   sendResponse(res, {
     data: result,
@@ -107,13 +95,24 @@ const updatePassword = catchAsync(async (req, res) => {
   });
 });
 
+const reSendOtp = catchAsync(async (req, res) => {
+  const { email } = req.body;
+  const result = await AuthService.reSendOtp(email);
+  sendResponse(res, {
+    data: result,
+    success: true,
+    statusCode: status.OK,
+    message: "Verification Code send successfully",
+  });
+});
+
 export const AuthController = {
   createUser,
   verifyUser,
   forgotPasswordRequest,
   resetPassword,
-  resendCode,
   userLogin,
   getNewAccessToken,
   updatePassword,
+  reSendOtp,
 };

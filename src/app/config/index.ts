@@ -58,4 +58,7 @@ export const appConfig = {
       webhook: process.env.STRIPE_WEBHOOK_SECRET,
     },
   },
+  encrypt: {
+    s_key: process.env.ENCRYPTION_SECRET_KEY,
+  },
 };

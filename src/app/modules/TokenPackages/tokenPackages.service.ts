@@ -1,22 +1,19 @@
-import { myDataSource } from "../../db/database";
-import { TokenPackage } from "./tokenPackages.entity";
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import TokenPackage from "./tokenPackages.model"; // Import your Mongoose model
 
+// Function to add a new token package
 const addnewPackage = async (data: { price: number; tokenAmount: number }) => {
-  const tokenPackageRepo = myDataSource.getRepository(TokenPackage);
-  const createNew = tokenPackageRepo.create({
+  const createNew = new TokenPackage({
     price: data.price,
     tokenAmount: data.tokenAmount,
   });
 
-  return await tokenPackageRepo.save(createNew);
+  return createNew.save();
 };
 
 const getAllTokenPackage = async () => {
-  const tokenPackageRepo = myDataSource.getRepository(TokenPackage);
-
-  return await tokenPackageRepo.find({
-    relations: ["paymentData"],
-  });
+  const allTokenPackage = await TokenPackage.find();
+  return allTokenPackage;
 };
 
 export const TokenPackageService = { addnewPackage, getAllTokenPackage };

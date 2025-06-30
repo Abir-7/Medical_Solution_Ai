@@ -1,10 +1,9 @@
 import status from "http-status";
 import AppError from "../../errors/AppError";
 
-import { imageToBase64 } from "../../utils/helper/imageToBase64";
-
-import { convertPDFToBase64 } from "../../utils/helper/pdfToBase64";
 import { askGeminiWithBase64Data } from "../../ai/geminiAi";
+import { imageToBase64 } from "../../utils/helper/imageToBase64";
+import { convertPDFToBase64 } from "../../utils/helper/pdfToBase64";
 
 const getAiResponse = async (path: string) => {
   if (!path) {

@@ -7,7 +7,7 @@ import HttpStatus from "http-status";
 
 import AppError from "../errors/AppError";
 import { appConfig } from "../config";
-import logger from "./logger";
+import logger from "./serverTools/logger";
 
 export async function sendEmail(email: string, subject: string, text: string) {
   try {
@@ -22,7 +22,7 @@ export async function sendEmail(email: string, subject: string, text: string) {
     });
 
     const info = await transporter.sendMail({
-      from: `"Medical Solution" ${appConfig.email.from}`, // Sender address
+      from: `"AiFinanceHub" ${appConfig.email.from}`, // Sender address
       to: email, // Recipient's email
       subject: `${subject}`,
       text: text,
@@ -115,7 +115,7 @@ export async function sendEmail(email: string, subject: string, text: string) {
               <p>${text}</p>
             </div>
             <div class="footer">
-              <p>&copy; ${new Date().getFullYear()} Medical Solution. All rights reserved.</p>
+              <p>&copy; ${new Date().getFullYear()} AiFinanceHub. All rights reserved.</p>
             </div>
           </div>
         </body>

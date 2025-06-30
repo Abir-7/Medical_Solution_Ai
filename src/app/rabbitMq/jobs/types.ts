@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type JobType = "email" | "notification" | "report";
 
 export interface EmailJob {
@@ -8,5 +9,6 @@ export interface EmailJob {
 
 export interface JobPayload {
   type: JobType;
+
   data: any;
 }

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { MedicalReportController } from "./medicalReport.controller";
-import { upload } from "../../middlewares/fileUpload/fileUploadHandler";
+import { upload } from "../../middleware/fileUpload/fileUploadHandler";
 
 const router = Router();
 

@@ -1,16 +1,19 @@
 import status from "http-status";
-import catchAsync from "../../../utils/catchAsync";
-import sendResponse from "../../../utils/sendResponse";
+import catchAsync from "../../../utils/serverTools/catchAsync";
+import sendResponse from "../../../utils/serverTools/sendResponse";
 import { UserService } from "./user.service";
 
-const getAllUser = catchAsync(async (req, res) => {
-  const result = await UserService.getAllUser();
+const getMyData = catchAsync(async (req, res) => {
+  const result = await UserService.getMyData(req.user.userId);
+
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
-    message: "All user fetched successfully.",
+    message: "User data is fetched successfully",
     data: result,
   });
 });
 
-export const UserController = { getAllUser };
+export const UserController = {
+  getMyData,
+};

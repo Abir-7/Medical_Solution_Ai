@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import fs from "fs";
 
 export const convertPDFToBase64 = async (filePath: string) => {

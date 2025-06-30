@@ -1,210 +1,234 @@
-import { UserToken } from "./../userToken/userToken.entity";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import status from "http-status";
-import { myDataSource } from "../../db/database";
 import AppError from "../../errors/AppError";
-import comparePassword from "../../utils/helper/comparePassword";
-import isExpired from "../../utils/helper/isExpired";
+import User from "../users/user/user.model";
 
-import { User } from "../users/user/user.entity";
-import { UserAuthentication } from "../users/userAuthentication/user_authentication.entity";
+import { jsonWebToken } from "../../utils/jwt/jwt";
+
+import { UserProfile } from "../users/userProfile/userProfile.model";
 import getExpiryTime from "../../utils/helper/getExpiryTime";
 import getOtp from "../../utils/helper/getOtp";
 import { sendEmail } from "../../utils/sendEmail";
 import getHashedPassword from "../../utils/helper/getHashedPassword";
-import { jsonWebToken } from "../../utils/jwt/jwt";
 import { appConfig } from "../../config";
-import { dispatchJob } from "../../rabbitMq/jobs";
-import { Specialty } from "../users/userProfile/userProfile.entity";
+import { IUser } from "../users/user/user.interface";
+import mongoose from "mongoose";
+import { isTimeExpired } from "../../utils/helper/isTimeExpire";
 
 const createUser = async (data: {
   email: string;
   fullName: string;
   password: string;
-  specialty: Specialty;
-  country: string;
-}) => {
-  const userData = {
-    email: data.email,
-    password: await getHashedPassword(data.password),
-  };
+}): Promise<Partial<IUser>> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  const userProfile = {
-    fullName: data.fullName,
-    specialty: data.specialty,
-    country: data.country,
-  };
-  const otp = getOtp(5).toString();
-  const userAuthentication = {
-    otp: otp,
-    token: null,
-    expDate: getExpiryTime(5),
-  };
+  try {
+    const isExist = await User.findOne({ email: data.email }).session(session);
 
-  const userRepo = myDataSource.getRepository(User);
-  const createUser = userRepo.create({
-    ...userData,
-    userProfile: userProfile,
-    authentication: userAuthentication,
-    userToken: { token: 0 },
-  });
-  const savedUser = await userRepo.save(createUser);
+    if (isExist && isExist.isVerified === true) {
+      throw new AppError(status.BAD_REQUEST, "User already exist");
+    }
 
-  // await sendEmail(
-  //   data.email,
-  //   "Email Verification Code",
-  //   `Your code is: ${otp}`
-  // );
+    if (isExist && isExist.isVerified === false) {
+      await User.findOneAndDelete({ _id: isExist._id }).session(session);
+      await UserProfile.findOneAndDelete({ user: isExist._id }).session(
+        session
+      );
+    }
 
-  await dispatchJob({
-    type: "email",
-    data: {
-      to: data.email,
-      subject: "Email Verification Code",
-      text: `Your code is: ${otp}`,
-    },
-  });
+    const hashedPassword = await getHashedPassword(data.password);
+    const otp = getOtp(4);
+    const expDate = getExpiryTime(10);
 
-  return { ...savedUser, authentication: {}, password: null };
+    const userData = {
+      email: data.email,
+      password: hashedPassword,
+      authentication: { otp, expDate },
+    };
+
+    const createdUser = await User.create([{ ...userData, role: "USER" }], {
+      session,
+    });
+
+    const userProfileData = {
+      fullName: data.fullName,
+      email: createdUser[0].email,
+      user: createdUser[0]._id,
+    };
+    await UserProfile.create([userProfileData], { session });
+
+    await sendEmail(
+      data.email,
+      "Email Verification Code",
+      `Your code is: ${otp}`
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      email: createdUser[0].email,
+      isVerified: createdUser[0].isVerified,
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 };
 
-const userLogin = async (loginData: { email: string; password: string }) => {
-  const userData = await myDataSource.getRepository(User).findOne({
-    where: { email: loginData.email },
-    relations: ["userProfile", "authentication"],
-  });
-
+const userLogin = async (loginData: {
+  email: string;
+  password: string;
+}): Promise<{ accessToken: string; userData: any; refreshToken: string }> => {
+  const userData = await User.findOne({ email: loginData.email }).select(
+    "+password"
+  );
   if (!userData) {
-    throw new Error("Invalid credentials: email");
+    throw new AppError(status.BAD_REQUEST, "Please check your email");
   }
 
-  if (!(await comparePassword(loginData.password, userData.password))) {
-    throw new Error("Invalid credentials: password");
+  if (userData.isVerified === false) {
+    throw new AppError(status.BAD_REQUEST, "Please verify your email.");
   }
 
-  if (!userData.isVerified) {
-    throw new Error("You are not varified.");
+  const isPassMatch = await userData.comparePassword(loginData.password);
+
+  if (!isPassMatch) {
+    throw new AppError(status.BAD_REQUEST, "Please check your password.");
   }
 
-  if (userData.isBlocked) {
-    throw new Error("You are blocked");
-  }
-  if (userData.isDeleted) {
-    throw new Error("Account deleted");
-  }
-
-  const tokenData = {
-    userRole: userData.role,
+  const jwtPayload = {
     userEmail: userData.email,
-    userId: userData.id,
+    userId: userData._id,
+    userRole: userData.role,
   };
 
   const accessToken = jsonWebToken.generateToken(
-    tokenData,
+    jwtPayload,
     appConfig.jwt.jwt_access_secret as string,
     appConfig.jwt.jwt_access_exprire
   );
 
   const refreshToken = jsonWebToken.generateToken(
-    tokenData,
+    jwtPayload,
     appConfig.jwt.jwt_refresh_secret as string,
     appConfig.jwt.jwt_refresh_exprire
   );
 
   return {
-    userData: { ...userData, password: "null" },
     accessToken,
     refreshToken,
+    userData: {
+      ...userData.toObject(),
+      password: null,
+    },
   };
 };
 
-const verifyUser = async (email: string, otp: string) => {
-  const userRepo = myDataSource.getRepository(User);
-  const user = await userRepo.findOne({
-    where: { email },
-  });
-
+const verifyUser = async (
+  email: string,
+  otp: number
+): Promise<{
+  userId: string | undefined;
+  email: string | undefined;
+  isVerified: boolean | undefined;
+  needToResetPass: boolean | undefined;
+  token: string | null;
+}> => {
+  if (!otp) {
+    throw new AppError(status.BAD_REQUEST, "Give the Code. Check your email.");
+  }
+  const user = await User.findOne({ email });
   if (!user) {
-    throw new AppError(status.BAD_REQUEST, "User not found.");
+    throw new AppError(status.BAD_REQUEST, "User not found");
   }
 
-  const auth = user.authentication;
+  const expirationDate = user.authentication.expDate;
 
-  if (!auth || !auth.otp || !auth.expDate) {
-    throw new AppError(status.BAD_REQUEST, "No OTP request found.");
+  if (isTimeExpired(expirationDate)) {
+    throw new AppError(status.BAD_REQUEST, "Code time expired.");
   }
 
-  if (isExpired(auth.expDate)) {
-    throw new AppError(status.BAD_REQUEST, "OTP has expired.");
+  if (otp !== user.authentication.otp) {
+    throw new AppError(status.BAD_REQUEST, "Code not matched.");
   }
 
-  if (auth.otp !== otp) {
-    throw new AppError(status.BAD_REQUEST, "OTP is incorrect.");
-  }
-
+  let updatedUser;
+  let token = null;
   if (user.isVerified) {
-    user.needToResetPass = !user.isVerified;
+    token = jsonWebToken.generateToken(
+      { userEmail: user.email },
+      appConfig.jwt.jwt_access_secret as string,
+      "10m"
+    );
+
+    const expDate = getExpiryTime(10);
+
+    updatedUser = await User.findOneAndUpdate(
+      { email: user.email },
+      {
+        "authentication.otp": null,
+        "authentication.expDate": expDate,
+        needToResetPass: true,
+        "authentication.token": token,
+      },
+      { new: true }
+    );
   } else {
-    user.isVerified = true;
-  }
-
-  auth.otp = null;
-  auth.expDate = null;
-
-  await userRepo.save(user);
-
-  return {
-    accessToken: "",
-    refreshToken: "",
-    user: { ...user, password: "" },
-  };
-};
-
-const forgotPasswordRequest = async (email: string) => {};
-
-const resendCode = async (email: string) => {
-  const userRepo = myDataSource.getRepository(User);
-  const authRepo = myDataSource.getRepository(UserAuthentication);
-  const userData = await userRepo.findOne({ where: { email } });
-
-  if (!userData || !userData.authentication) {
-    throw new AppError(status.BAD_REQUEST, "User not found.");
-  }
-
-  const { authentication } = userData;
-
-  if (!authentication.otp) {
-    throw new AppError(status.BAD_REQUEST, "We can't send you code.");
-  }
-
-  if (!isExpired(authentication.expDate)) {
-    throw new AppError(
-      status.BAD_REQUEST,
-      "Use your previous code. Code is still valid."
+    updatedUser = await User.findOneAndUpdate(
+      { email: user.email },
+      {
+        "authentication.otp": null,
+        "authentication.expDate": null,
+        isVerified: true,
+      },
+      { new: true }
     );
   }
 
-  const otp = getOtp(5);
-  const expDate = getExpiryTime(5);
+  return {
+    userId: updatedUser?._id as string,
+    email: updatedUser?.email,
+    isVerified: updatedUser?.isVerified,
+    needToResetPass: updatedUser?.needToResetPass,
+    token: token,
+  };
+};
 
-  const updatedAuth = await authRepo.preload({
-    id: authentication.id,
-    expDate,
-    otp: otp.toString(),
-  });
-  if (!updatedAuth) {
-    throw new AppError(status.BAD_REQUEST, "Failed to send code. Try again.");
+const forgotPasswordRequest = async (
+  email: string
+): Promise<{ email: string }> => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new AppError(status.BAD_REQUEST, "Email not found.");
   }
 
-  await myDataSource.transaction(async (transactionalEntityManager) => {
-    try {
-      await sendEmail(email, "verification code", otp.toString());
+  const otp = getOtp(4);
+  const expDate = getExpiryTime(10);
 
-      await transactionalEntityManager.save(UserAuthentication, updatedAuth);
-    } catch (error) {
-      throw new AppError(status.BAD_REQUEST, "Failed to send code. Try again.");
-    }
-  });
-  return { message: "Code sent" };
+  const data = {
+    otp: otp,
+    expDate: expDate,
+    needToResetPass: false,
+    token: null,
+  };
+
+  await sendEmail(
+    user.email,
+    "Reset Password Verification Code",
+    `Your code is: ${otp}`
+  );
+
+  await User.findOneAndUpdate(
+    { email },
+    { authentication: data },
+    { new: true }
+  );
+
+  return { email: user.email };
 };
 
 const resetPassword = async (
@@ -213,9 +237,90 @@ const resetPassword = async (
     new_password: string;
     confirm_password: string;
   }
-) => {};
+): Promise<{ email: string }> => {
+  const { new_password, confirm_password } = userData;
 
-const getNewAccessToken = async (refreshToken: string) => {};
+  if (!token) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      "You are not allowed to reset password."
+    );
+  }
+
+  const user = await User.findOne({ "authentication.token": token });
+  if (!user) {
+    throw new AppError(status.BAD_REQUEST, "User not found.");
+  }
+
+  const currentDate = new Date();
+  const expirationDate = new Date(user.authentication.expDate);
+
+  if (currentDate > expirationDate) {
+    throw new AppError(status.BAD_REQUEST, "Token expired.");
+  }
+
+  if (new_password !== confirm_password) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      "New password and Confirm password doesn't match!"
+    );
+  }
+
+  const decode = jsonWebToken.verifyJwt(
+    token,
+    appConfig.jwt.jwt_access_secret as string
+  );
+
+  const hassedPassword = await getHashedPassword(new_password);
+
+  const updateData = await User.findOneAndUpdate(
+    { email: decode.userEmail },
+    {
+      password: hassedPassword,
+      authentication: { otp: null, token: null, expDate: null },
+      needToResetPass: false,
+    },
+    { new: true }
+  );
+  if (!updateData) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      "Failed to reset password. Try again."
+    );
+  }
+  return { email: updateData?.email as string };
+};
+
+const getNewAccessToken = async (
+  refreshToken: string
+): Promise<{ accessToken: string }> => {
+  if (!refreshToken) {
+    throw new AppError(status.UNAUTHORIZED, "Refresh token not found.");
+  }
+  const decode = jsonWebToken.verifyJwt(
+    refreshToken,
+    appConfig.jwt.jwt_refresh_secret as string
+  );
+
+  const { userEmail, userId, userRole } = decode;
+
+  if (userEmail && userId && userRole) {
+    const jwtPayload = {
+      userEmail: userEmail,
+      userId: userId,
+      userRole: userRole,
+    };
+
+    const accessToken = jsonWebToken.generateToken(
+      jwtPayload,
+      appConfig.jwt.jwt_access_secret as string,
+      appConfig.jwt.jwt_access_exprire
+    );
+    return { accessToken };
+  } else {
+    throw new AppError(status.UNAUTHORIZED, "You are unauthorized.");
+  }
+};
 
 const updatePassword = async (
   userId: string,
@@ -224,8 +329,69 @@ const updatePassword = async (
     confirm_password: string;
     old_password: string;
   }
-) => {};
+): Promise<{ message: string; user: string }> => {
+  const { new_password, confirm_password, old_password } = passData;
 
+  const user = await User.findById(userId).select("+password");
+  if (!user) {
+    throw new AppError(status.NOT_FOUND, "User not found.");
+  }
+
+  const isPassMatch = await user.comparePassword(old_password);
+
+  if (!isPassMatch) {
+    throw new AppError(status.BAD_REQUEST, "Old password not matched.");
+  }
+
+  if (new_password !== confirm_password) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      "New password and Confirm password doesn't match!"
+    );
+  }
+
+  const hassedPassword = await getHashedPassword(new_password);
+
+  if (!hassedPassword) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      "Failed to update password. Try again."
+    );
+  }
+
+  user.password = hassedPassword;
+  await user.save();
+
+  return { user: user.email, message: "Password successfully updated." };
+};
+
+const reSendOtp = async (userEmail: string): Promise<{ message: string }> => {
+  const userData = await User.findOne({ email: userEmail });
+
+  if (!userData?.authentication.otp) {
+    throw new AppError(500, "Don't find any expired code");
+  }
+
+  const OTP = getOtp(4);
+
+  const updateUser = await User.findOneAndUpdate(
+    { email: userEmail },
+    {
+      $set: {
+        "authentication.otp": OTP,
+        "authentication.expDate": new Date(Date.now() + 10 * 60 * 1000), //10min
+      },
+    },
+    { new: true }
+  );
+
+  if (!updateUser) {
+    throw new AppError(500, "Failed to Send. Try Again!");
+  }
+
+  await sendEmail(userEmail, "Verification Code", `CODE: ${OTP}`);
+  return { message: "Verification code send." };
+};
 export const AuthService = {
   createUser,
   userLogin,
@@ -234,5 +400,5 @@ export const AuthService = {
   resetPassword,
   getNewAccessToken,
   updatePassword,
-  resendCode,
+  reSendOtp,
 };

@@ -1,7 +1,8 @@
 import status from "http-status";
-import catchAsync from "../../utils/catchAsync";
-import sendResponse from "../../utils/sendResponse";
+
 import { TokenPackageService } from "./tokenPackages.service";
+import catchAsync from "../../utils/serverTools/catchAsync";
+import sendResponse from "../../utils/serverTools/sendResponse";
 
 const addNewPackage = catchAsync(async (req, res) => {
   const result = await TokenPackageService.addnewPackage(req.body);

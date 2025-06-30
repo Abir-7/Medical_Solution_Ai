@@ -1,7 +1,8 @@
 import status from "http-status";
-import catchAsync from "../../utils/catchAsync";
-import sendResponse from "../../utils/sendResponse";
+
 import { PaymentService } from "./payment.service";
+import catchAsync from "../../utils/serverTools/catchAsync";
+import sendResponse from "../../utils/serverTools/sendResponse";
 
 const createPaymentIntent = catchAsync(async (req, res) => {
   const result = await PaymentService.createPaymentIntent(
