@@ -12,7 +12,7 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
 
 
-  basic-node-express:
+  medical-solution-express:
     build: .
     depends_on:
       - medical-solution-rabbitmq

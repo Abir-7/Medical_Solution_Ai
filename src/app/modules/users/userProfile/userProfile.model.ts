@@ -3,7 +3,6 @@ import { IUserProfile, Specialty } from "./userProfile.interface";
 
 const userProfileSchema = new Schema<IUserProfile>({
   fullName: { type: String },
-  nickname: { type: String },
   dateOfBirth: { type: Date },
   phone: { type: String },
   address: { type: String },
@@ -12,7 +11,9 @@ const userProfileSchema = new Schema<IUserProfile>({
   specialty: {
     type: String,
     enum: Object.values(Specialty), // Restrict to values from the Specialty enum
-    required: true,
+  },
+  country: {
+    type: String,
   },
 });
 

@@ -11,7 +11,7 @@ export const appConfig = {
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     db_name: process.env.POSTGRES_DB,
-    dataBase_uri: process.env.DATABASE_URI, // Optional: if you're using full URI instead
+    dataBase_uri: process.env.MONGODB_URI, // Optional: if you're using full URI instead
   },
   server: {
     port: process.env.PORT,
