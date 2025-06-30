@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { getRabbitConnection } from "../rabbitMq";
 import { JobPayload } from "./types";
 

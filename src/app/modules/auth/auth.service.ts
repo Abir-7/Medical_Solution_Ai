@@ -14,11 +14,15 @@ import { appConfig } from "../../config";
 import { IUser } from "../users/user/user.interface";
 import mongoose from "mongoose";
 import { isTimeExpired } from "../../utils/helper/isTimeExpire";
+import { Specialty } from "../users/userProfile/userProfile.interface";
+import { dispatchJob } from "../../rabbitMq/jobs";
 
 const createUser = async (data: {
   email: string;
   fullName: string;
   password: string;
+  country: string;
+  specialty: Specialty;
 }): Promise<Partial<IUser>> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -55,14 +59,25 @@ const createUser = async (data: {
       fullName: data.fullName,
       email: createdUser[0].email,
       user: createdUser[0]._id,
+      country: data.country,
+      specialty: data.specialty,
     };
     await UserProfile.create([userProfileData], { session });
 
-    await sendEmail(
-      data.email,
-      "Email Verification Code",
-      `Your code is: ${otp}`
-    );
+    // await sendEmail(
+    //   data.email,
+    //   "Email Verification Code",
+    //   `Your code is: ${otp}`
+    // );
+
+    await dispatchJob({
+      type: "email",
+      data: {
+        to: data.email,
+        subject: "Email Verification Code",
+        text: `Your code is: ${otp}`,
+      },
+    });
 
     await session.commitTransaction();
     session.endSession();

@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IUserProfile } from "./userProfile.interface";
+import { IUserProfile, Specialty } from "./userProfile.interface";
 
 const userProfileSchema = new Schema<IUserProfile>({
   fullName: { type: String },
@@ -9,6 +9,11 @@ const userProfileSchema = new Schema<IUserProfile>({
   address: { type: String },
   image: { type: String },
   user: { type: Schema.Types.ObjectId, ref: "User", unique: true },
+  specialty: {
+    type: String,
+    enum: Object.values(Specialty), // Restrict to values from the Specialty enum
+    required: true,
+  },
 });
 
 export const UserProfile = model<IUserProfile>(

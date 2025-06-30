@@ -1,9 +1,9 @@
 version: "3.9"
 
 services:
-  basic-node-rabbitmq:
+  medical-solution-rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbitmd-basic-node
+    container_name: rabbitmd-medical-solution
     ports:
       - "5673:5672"  # Changed left port to avoid conflict with old project
       - "15673:15672" # Changed left port to avoid conflict with old project
@@ -15,7 +15,7 @@ services:
   basic-node-express:
     build: .
     depends_on:
-      - basic-node-rabbitmq
+      - medical-solution-rabbitmq
     env_file:
       - .env
     ports:
