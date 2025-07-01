@@ -1,0 +1,5 @@
+rs.conf()
+ rs.status()
+rs.initiate()
+rs.status()
+rs.initiate()
