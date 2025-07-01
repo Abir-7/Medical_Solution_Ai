@@ -1,8 +1,8 @@
 import { model, Schema } from "mongoose";
-import { TokenPackage } from "./tokenPackages.interface";
+import { ITokenPackage } from "./tokenPackages.interface";
 
 // Define the Mongoose schema for TokenPackage
-const tokenPackageSchema = new Schema<TokenPackage>(
+const tokenPackageSchema = new Schema<ITokenPackage>(
   {
     price: {
       type: Number,
@@ -12,6 +12,10 @@ const tokenPackageSchema = new Schema<TokenPackage>(
       type: Number,
       required: true,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -19,6 +23,6 @@ const tokenPackageSchema = new Schema<TokenPackage>(
 );
 
 // Create and export the model
-const TokenPackage = model<TokenPackage>("TokenPackage", tokenPackageSchema);
+const TokenPackage = model<ITokenPackage>("TokenPackage", tokenPackageSchema);
 
 export default TokenPackage;

@@ -2,7 +2,6 @@ import { IBaseUser } from "../user/user.interface";
 
 export interface IUserProfile {
   fullName: string;
-
   dateOfBirth?: Date;
   phone?: string;
   address?: string;

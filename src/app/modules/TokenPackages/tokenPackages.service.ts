@@ -1,8 +1,14 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import TokenPackage from "./tokenPackages.model"; // Import your Mongoose model
+import TokenPackage from "./tokenPackages.model";
 
 // Function to add a new token package
 const addnewPackage = async (data: { price: number; tokenAmount: number }) => {
+  const isExist = await TokenPackage.findOne({
+    price: data.price,
+    tokenAmount: data.tokenAmount,
+  });
+  if (isExist) {
+    return isExist;
+  }
   const createNew = new TokenPackage({
     price: data.price,
     tokenAmount: data.tokenAmount,
