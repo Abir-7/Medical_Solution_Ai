@@ -22,6 +22,7 @@ const paymentSchema = new Schema<Payment>(
       ref: "UserToken",
       required: true,
     },
+    user: { type: Schema.Types.ObjectId, required: true },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt timestamps

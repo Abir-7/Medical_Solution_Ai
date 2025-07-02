@@ -16,6 +16,7 @@ import mongoose from "mongoose";
 import { isTimeExpired } from "../../utils/helper/isTimeExpire";
 import { Specialty } from "../users/userProfile/userProfile.interface";
 import { dispatchJob } from "../../rabbitMq/jobs";
+import UserToken from "../userToken/userToken.model";
 
 const createUser = async (data: {
   email: string;
@@ -69,6 +70,10 @@ const createUser = async (data: {
     //   "Email Verification Code",
     //   `Your code is: ${otp}`
     // );
+
+    await UserToken.create([{ token: 20, user: createdUser[0]._id }], {
+      session,
+    });
 
     await dispatchJob({
       type: "email",
