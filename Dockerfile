@@ -13,11 +13,5 @@ RUN npm install
 # Copy all source files
 COPY . .
 
-# Build TypeScript (optional for dev mode but good to have)
-RUN npm run build
-
-# Expose app port
-EXPOSE 4500
-
 # Default command (can be overridden in docker-compose)
 CMD ["npm", "run", "dev"]
