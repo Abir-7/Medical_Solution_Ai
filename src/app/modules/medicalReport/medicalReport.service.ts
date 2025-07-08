@@ -19,7 +19,7 @@ const getAiResponse = async (path: string) => {
 
   if (path.includes("pdf")) {
     return await askGeminiWithBase64Data(
-      "what doctor say in this.?",
+      " guess the patient  problem  ",
       await fileToBase64(path),
 
       "pdf"

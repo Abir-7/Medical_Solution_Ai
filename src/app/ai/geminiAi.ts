@@ -5,13 +5,17 @@ import { appConfig } from "../config";
 const genAI = new GoogleGenAI({ apiKey: appConfig.ai_key.gemini_ai });
 
 // Helper function to create content based on the type
-const createContent = (type: "image" | "pdf" | "audio", base64Data: string) => {
+const createContent = (
+  type: "image" | "pdf" | "audio",
+  base64Data: string,
+  prompt: string
+) => {
   console.log(type, base64Data);
 
   switch (type) {
     case "audio":
       return [
-        { text: "Please summarize the audio." },
+        { text: prompt },
         {
           inlineData: {
             mimeType: "audio/mp3",
@@ -27,11 +31,11 @@ const createContent = (type: "image" | "pdf" | "audio", base64Data: string) => {
             data: base64Data,
           },
         },
-        { text: "Caption this image." },
+        { text: prompt },
       ];
     case "pdf":
       return [
-        { text: "Summarize this document" },
+        { text: prompt },
         {
           inlineData: {
             mimeType: "application/pdf",
@@ -56,7 +60,7 @@ export const askGeminiWithBase64Data = async (
 
   try {
     // Prepare the content based on type
-    const contents = createContent(type, base64Data);
+    const contents = createContent(type, base64Data, prompt);
 
     // Generate response
     const response = await genAI.models.generateContent({
