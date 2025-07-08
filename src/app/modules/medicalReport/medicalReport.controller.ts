@@ -6,7 +6,8 @@ import sendResponse from "../../utils/serverTools/sendResponse";
 
 const getAiResponse = catchAsync(async (req, res) => {
   const result = await MedicalReportService.getAiResponse(
-    req.file?.path as string
+    req.file?.path as string,
+    req.body.promt
   );
 
   sendResponse(res, {

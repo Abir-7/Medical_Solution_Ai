@@ -1,12 +1,14 @@
 import { Router } from "express";
 import { MedicalReportController } from "./medicalReport.controller";
 import { upload } from "../../middleware/fileUpload/fileUploadHandler";
+import { parseDataField } from "../../middleware/fileUpload/parseDataField";
 
 const router = Router();
 
 router.post(
   "/get-ai-res",
   upload.single("file"),
+  parseDataField("data"),
   MedicalReportController.getAiResponse
 );
 
