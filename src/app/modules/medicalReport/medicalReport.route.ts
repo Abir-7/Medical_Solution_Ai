@@ -7,7 +7,7 @@ const router = Router();
 
 router.post(
   "/get-ai-res",
-  upload.single("file"),
+  upload.array("file"),
   parseDataField("data"),
   MedicalReportController.getAiResponse
 );
