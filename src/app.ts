@@ -28,7 +28,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
 app.use(
-  "/api/payment/webhook",
+  "/api/stripe/webhook",
   express.raw({ type: "application/json" }),
   PaymentController.stripeWebhook
 );

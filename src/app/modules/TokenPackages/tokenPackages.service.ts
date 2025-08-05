@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import TokenPackage from "./tokenPackages.model";
 
 // Function to add a new token package

@@ -16,7 +16,7 @@ import mongoose from "mongoose";
 import { isTimeExpired } from "../../utils/helper/isTimeExpire";
 import { Specialty } from "../users/userProfile/userProfile.interface";
 import { dispatchJob } from "../../rabbitMq/jobs";
-import UserToken from "../userToken/userToken.model";
+import UserToken from "../users/userToken/userToken.model";
 
 const createUser = async (data: {
   email: string;

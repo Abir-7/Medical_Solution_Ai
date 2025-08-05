@@ -10,8 +10,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-    networks:
-      - mongo-cluster
+
 
   medical-solution-express:
     build: .
@@ -20,13 +19,9 @@ services:
     env_file:
       - .env
     ports:
-      - "4001:4000" # Changed left port to avoid conflict with old project
+      - "4005:4000" # Changed left port to avoid conflict with old project
     volumes:
       - .:/app
     command: npm run dev
-    networks:
-      - mongo-cluster
 
-networks:
-  mongo-cluster:
-    external: true  # Ensure this network is already created externally, or change to "driver: bridge" for internal use
+
