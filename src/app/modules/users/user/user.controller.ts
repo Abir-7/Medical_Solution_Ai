@@ -14,6 +14,30 @@ const getMyData = catchAsync(async (req, res) => {
   });
 });
 
+const deleteMe = catchAsync(async (req, res) => {
+  const result = await UserService.deleteUser(req.user.userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "User data  is deleted successfully",
+    data: result,
+  });
+});
+const deleteUser = catchAsync(async (req, res) => {
+  const result = await UserService.deleteUser(req.params.uId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "User data  is deleted successfully",
+    data: result,
+  });
+});
+
 export const UserController = {
   getMyData,
+
+  deleteMe,
+  deleteUser,
 };

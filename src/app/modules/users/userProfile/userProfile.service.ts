@@ -65,4 +65,29 @@ const updateProfileData = async (
   return updated;
 };
 
-export const UserProfileService = { updateProfileData, updateProfileImage };
+const updateProfile = async (
+  userdata: Partial<IUserProfile>,
+  email: string
+): Promise<IUserProfile | null> => {
+  const user = await User.findOne({ email: email });
+
+  if (!user) {
+    throw new AppError(status.NOT_FOUND, "User not found.");
+  }
+  const data = removeFalsyFields(userdata);
+  const updated = await UserProfile.findOneAndUpdate({ user: user._id }, data, {
+    new: true,
+  });
+
+  if (!updated) {
+    throw new AppError(status.BAD_REQUEST, "Failed to update user info.");
+  }
+
+  return updated;
+};
+
+export const UserProfileService = {
+  updateProfileData,
+  updateProfileImage,
+  updateProfile,
+};

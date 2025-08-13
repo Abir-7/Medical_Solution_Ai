@@ -4,6 +4,7 @@ import { zodUpdateProfileSchema } from "./userProfile.validation";
 import { upload } from "../../../middleware/fileUpload/fileUploadHandler";
 import { auth } from "../../../middleware/auth/auth";
 import { UserProfileController } from "./userProfile.controller";
+import { parseDataField } from "../../../middleware/fileUpload/parseDataField";
 
 const router = Router();
 
@@ -19,6 +20,15 @@ router.patch(
   auth("ADMIN", "USER"),
   zodValidator(zodUpdateProfileSchema),
   UserProfileController.updateProfileData
+);
+
+router.patch(
+  "/update-profile",
+  auth("ADMIN", "USER"),
+  upload.single("image"),
+  parseDataField("data"),
+  zodValidator(zodUpdateProfileSchema),
+  UserProfileController.updateProfile
 );
 
 export const UserProfileRoute = router;

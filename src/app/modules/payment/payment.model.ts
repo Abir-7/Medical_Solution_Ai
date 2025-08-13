@@ -1,20 +1,19 @@
 import { Schema, model } from "mongoose";
-import { Payment } from "./payment.interface"; // Import the interface for Payment
+import { Payment as IPayment } from "./payment.interface"; // Rename to avoid conflict
 
-// Define the Mongoose schema for Payment
-const paymentSchema = new Schema<Payment>(
+const paymentSchema = new Schema<IPayment>(
   {
     txId: {
       type: String,
-      required: false, // txId is nullable, so no `required`
+      required: false, // Optional Stripe/Tx ID
     },
     priceAtBuyTime: {
       type: Number,
-      required: true, // This field is required
+      required: true,
     },
     tokenPackageId: {
       type: Schema.Types.ObjectId,
-      ref: "TokenPackage", // Reference to TokenPackage model
+      ref: "TokenPackage",
       required: true,
     },
     userTokenId: {
@@ -22,14 +21,20 @@ const paymentSchema = new Schema<Payment>(
       ref: "UserToken",
       required: true,
     },
-    user: { type: Schema.Types.ObjectId, required: true },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User", // Add ref for population
+      required: true,
+    },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt timestamps
+    timestamps: true, // adds createdAt & updatedAt
   }
 );
 
-// Create and export the model
-const Payment = model<Payment>("Payment", paymentSchema);
+paymentSchema.index({ createdAt: 1 }); // for date-based queries
+paymentSchema.index({ user: 1 }); // for user-specific lookups
+
+const Payment = model<IPayment>("Payment", paymentSchema);
 
 export default Payment;

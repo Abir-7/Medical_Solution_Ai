@@ -7,4 +7,7 @@ const router = Router();
 
 router.get("/me", auth("USER", "ADMIN"), UserController.getMyData);
 
+router.delete("/delete-me", auth("USER"), UserController.deleteMe);
+router.delete("/delete/:uId", auth("ADMIN"), UserController.deleteUser);
+
 export const UserRoute = router;

@@ -14,7 +14,7 @@ import { PaymentController } from "./app/modules/payment/payment.controller";
 const app = express();
 
 const corsOption = {
-  origin: ["*"], // need to add real htp link like "https://yourdomain.com", "http://localhost:3000"
+  origin: ["http://10.10.12.59:5173", "*"], // need to add real htp link like "https://yourdomain.com", "http://localhost:3000"
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
   credentials: true,
 };
