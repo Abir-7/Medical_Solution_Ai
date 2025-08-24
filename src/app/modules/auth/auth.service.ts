@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import status from "http-status";
 import AppError from "../../errors/AppError";
@@ -17,6 +18,7 @@ import { isTimeExpired } from "../../utils/helper/isTimeExpire";
 import { Specialty } from "../users/userProfile/userProfile.interface";
 import { dispatchJob } from "../../rabbitMq/jobs";
 import UserToken from "../users/userToken/userToken.model";
+import { jwtDecode } from "jwt-decode";
 
 const createUser = async (data: {
   email: string;
@@ -98,10 +100,7 @@ const createUser = async (data: {
   }
 };
 
-const userLogin = async (loginData: {
-  email: string;
-  password: string;
-}): Promise<{ accessToken: string; userData: any; refreshToken: string }> => {
+const userLogin = async (loginData: { email: string; password: string }) => {
   const userData = await User.findOne({ email: loginData.email }).select(
     "+password"
   );
@@ -137,7 +136,10 @@ const userLogin = async (loginData: {
     appConfig.jwt.jwt_refresh_exprire
   );
 
+  const data = jwtDecode(accessToken);
+  console.log(data.exp);
   return {
+    access_token_valid_till: data?.exp as number,
     accessToken,
     refreshToken,
     userData: {
@@ -165,14 +167,14 @@ const verifyUser = async (
     throw new AppError(status.BAD_REQUEST, "User not found");
   }
 
-  const expirationDate = user.authentication.expDate;
+  const expirationDate = user?.authentication?.expDate;
+
+  if (otp !== user?.authentication?.otp) {
+    throw new AppError(status.BAD_REQUEST, "Code not matched.");
+  }
 
   if (isTimeExpired(expirationDate)) {
     throw new AppError(status.BAD_REQUEST, "Code time expired.");
-  }
-
-  if (otp !== user.authentication.otp) {
-    throw new AppError(status.BAD_REQUEST, "Code not matched.");
   }
 
   let updatedUser;
@@ -313,7 +315,7 @@ const resetPassword = async (
 
 const getNewAccessToken = async (
   refreshToken: string
-): Promise<{ accessToken: string }> => {
+): Promise<{ accessToken: string; access_token_valid_till: number }> => {
   if (!refreshToken) {
     throw new AppError(status.UNAUTHORIZED, "Refresh token not found.");
   }
@@ -336,7 +338,13 @@ const getNewAccessToken = async (
       appConfig.jwt.jwt_access_secret as string,
       appConfig.jwt.jwt_access_exprire
     );
-    return { accessToken };
+
+    const data = jwtDecode(accessToken);
+    console.log(data.exp);
+    return {
+      accessToken,
+      access_token_valid_till: data?.exp as number,
+    };
   } else {
     throw new AppError(status.UNAUTHORIZED, "You are unauthorized.");
   }

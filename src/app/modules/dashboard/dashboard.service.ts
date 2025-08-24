@@ -8,12 +8,54 @@ import User from "../users/user/user.model";
 import { UserProfile } from "../users/userProfile/userProfile.model";
 
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-const dashboardData = async () => {
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - 6); // last 7 days including today
+const dashboardData = async (
+  filter: "daily" | "weekly" | "monthly" = "daily"
+) => {
+  const today = new Date();
 
-  // Run user count and payment aggregations in parallel
-  const [totalUser, paymentStats, userToken] = await Promise.all([
+  let matchDate: Date;
+  let groupStage: any;
+  let labels: string[];
+
+  if (filter === "daily") {
+    matchDate = new Date();
+    matchDate.setDate(today.getDate() - 6); // last 7 days
+    groupStage = {
+      _id: { $dayOfWeek: "$createdAt" },
+      total: { $sum: "$priceAtBuyTime" },
+    };
+    labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  } else if (filter === "weekly") {
+    matchDate = new Date();
+    matchDate.setDate(today.getDate() - 6 * 7); // last 6 weeks
+    groupStage = {
+      _id: { $week: "$createdAt" },
+      total: { $sum: "$priceAtBuyTime" },
+    };
+    labels = Array.from({ length: 6 }, (_, i) => `Week ${i + 1}`);
+  } else {
+    matchDate = new Date(today.getFullYear(), 0, 1); // start of year
+    groupStage = {
+      _id: { $month: "$createdAt" },
+      total: { $sum: "$priceAtBuyTime" },
+    };
+    labels = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+  }
+
+  const [totalUser, paymentStats, totalEarnAgg, userToken] = await Promise.all([
     User.countDocuments({
       role: userRoles.USER,
       isVerified: true,
@@ -21,58 +63,34 @@ const dashboardData = async () => {
     }),
 
     Payment.aggregate([
-      {
-        $facet: {
-          totalEarn: [
-            { $group: { _id: null, total: { $sum: "$priceAtBuyTime" } } },
-          ],
-          earningsByDay: [
-            { $match: { createdAt: { $gte: startDate } } },
-            {
-              $group: {
-                _id: { $dayOfWeek: "$createdAt" }, // 1 (Sun) to 7 (Sat)
-                total: { $sum: "$priceAtBuyTime" },
-              },
-            },
-          ],
-        },
-      },
+      { $match: { createdAt: { $gte: matchDate } } },
+      { $group: groupStage },
+    ]),
+
+    Payment.aggregate([
+      { $group: { _id: null, total: { $sum: "$priceAtBuyTime" } } },
     ]),
 
     User.aggregate([
-      {
-        $match: {
-          isDeleted: false, // optional filter
-        },
-      },
+      { $match: { isDeleted: false } },
       {
         $lookup: {
-          from: "userprofiles", // collection name (usually lowercase plural)
+          from: "userprofiles",
           localField: "_id",
           foreignField: "user",
           as: "profile",
         },
       },
-      {
-        $unwind: {
-          path: "$profile",
-          preserveNullAndEmptyArrays: true, // keep users even if profile is missing
-        },
-      },
+      { $unwind: { path: "$profile", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
-          from: "usertokens", // collection name
+          from: "usertokens",
           localField: "_id",
           foreignField: "user",
           as: "tokenData",
         },
       },
-      {
-        $unwind: {
-          path: "$tokenData",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
+      { $unwind: { path: "$tokenData", preserveNullAndEmptyArrays: true } },
       {
         $project: {
           _id: 0,
@@ -84,33 +102,37 @@ const dashboardData = async () => {
     ]),
   ]);
 
-  const totalEarn = paymentStats[0]?.totalEarn[0]?.total || 0;
-  const earningsByDay = paymentStats[0]?.earningsByDay || [];
+  const totalEarn = totalEarnAgg[0]?.total || 0;
 
-  const dayMap = {
-    1: "Sun",
-    2: "Mon",
-    3: "Tue",
-    4: "Wed",
-    5: "Thu",
-    6: "Fri",
-    7: "Sat",
-  };
+  const lookup: Record<string, number> = {};
+  paymentStats.forEach((item) => {
+    if (filter === "daily") {
+      const dayMap = {
+        1: "Sun",
+        2: "Mon",
+        3: "Tue",
+        4: "Wed",
+        5: "Thu",
+        6: "Fri",
+        7: "Sat",
+      };
+      lookup[(dayMap as any)[item._id]] = item.total;
+    } else if (filter === "weekly") {
+      lookup[item._id] = item.total;
+    } else {
+      lookup[item._id] = item.total; // month
+    }
+  });
 
-  // Convert earningsByDay into a lookup object
-  const earningsLookup: Record<string, number> = {};
-  for (const day of earningsByDay) {
-    const dayName = dayMap[day._id as keyof typeof dayMap];
-    earningsLookup[dayName] = day.total;
-  }
-
-  // Build final chart data using map
-  const chartData = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
-    (day) => ({
-      date: day,
-      score: earningsLookup[day] || 0,
-    })
-  );
+  const chartData = labels.map((label, idx) => ({
+    date: label,
+    score:
+      filter === "weekly"
+        ? lookup[Object.keys(lookup)[idx]] || 0
+        : filter === "monthly"
+        ? lookup[idx + 1] || 0
+        : lookup[label] || 0,
+  }));
 
   return {
     totalUser,

@@ -4,7 +4,9 @@ import sendResponse from "../../utils/serverTools/sendResponse";
 import { DashboardService } from "./dashboard.service";
 
 const dashboardData = catchAsync(async (req, res) => {
-  const result = await DashboardService.dashboardData();
+  const result = await DashboardService.dashboardData(
+    req.query.filter as "daily" | "weekly" | "monthly"
+  );
   sendResponse(res, {
     success: true,
     statusCode: status.OK,

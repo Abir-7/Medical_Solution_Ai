@@ -28,6 +28,7 @@ const allowedMimeTypes = [
   "audio/x-wav",
   "audio/x-m4a", // .m4a
   "audio/aac", // .aac
+  "audio/mp4",
 
   // Documents
   "application/pdf",
