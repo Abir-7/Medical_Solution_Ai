@@ -16,7 +16,7 @@ const getAiResponse = catchAsync(async (req, res) => {
 
   const result = await MedicalReportService.getAiResponse(
     fileData,
-    req.body?.promt
+    req.body?.promt || ""
   );
 
   sendResponse(res, {
@@ -27,4 +27,15 @@ const getAiResponse = catchAsync(async (req, res) => {
   });
 });
 
-export const MedicalReportController = { getAiResponse };
+const saveAiResponse = catchAsync(async (req, res) => {
+  const result = await MedicalReportService.saveAiResponse(req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "Ai response saved.",
+    data: result,
+  });
+});
+
+export const MedicalReportController = { getAiResponse, saveAiResponse };

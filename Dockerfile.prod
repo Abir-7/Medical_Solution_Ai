@@ -1,0 +1,40 @@
+# Stage 1: Build
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install all dependencies (including dev for TS build)
+COPY package*.json ./
+RUN npm install
+
+# Copy source files
+COPY . .
+
+# Build TypeScript
+RUN npm run build
+
+# Stage 2: Production image
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install only production dependencies
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy compiled code from builder
+COPY --from=builder /app/dist ./dist
+
+# Copy .env or any config files needed
+COPY --from=builder /app/.env ./
+
+# Expose the port
+EXPOSE 4005
+
+# Start the server after waiting for RabbitMQ
+CMD sh -c 'echo "Waiting for RabbitMQ..."; \
+while ! nc -z medical-solution-rabbitmq 5672; do \
+  sleep 1; \
+done; \
+echo "RabbitMQ is up. Starting Node app..."; \
+npm start'

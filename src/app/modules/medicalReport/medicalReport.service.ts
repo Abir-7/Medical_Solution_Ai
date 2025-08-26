@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable quotes */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
@@ -85,4 +86,10 @@ const getAiResponse = async (
   return JSON.parse(summaryRes);
 };
 
-export const MedicalReportService = { getAiResponse };
+const saveAiResponse = async (data: any) => {
+  console.log(data);
+
+  return { success: true };
+};
+
+export const MedicalReportService = { getAiResponse, saveAiResponse };

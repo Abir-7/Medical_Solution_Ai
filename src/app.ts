@@ -37,7 +37,7 @@ app.use(express.json());
 app.use("/api", router);
 
 app.get("/", (req, res) => {
-  res.send("Hello World! This app name is TEST");
+  res.send("Hello World! This app name is Ai medical solution");
 });
 
 app.use(express.static(path.join(process.cwd(), "uploads")));

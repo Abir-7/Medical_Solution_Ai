@@ -2,6 +2,7 @@ import { Router } from "express";
 import { MedicalReportController } from "./medicalReport.controller";
 import { upload } from "../../middleware/fileUpload/fileUploadHandler";
 import { parseDataField } from "../../middleware/fileUpload/parseDataField";
+import { auth } from "../../middleware/auth/auth";
 
 const router = Router();
 
@@ -10,6 +11,12 @@ router.post(
   upload.array("file"),
   parseDataField("data"),
   MedicalReportController.getAiResponse
+);
+
+router.post(
+  "/save-ai-response",
+  auth("USER"),
+  MedicalReportController.saveAiResponse
 );
 
 export const MedicalReportRoute = router;

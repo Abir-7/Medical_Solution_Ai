@@ -6,9 +6,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
     "start": "node ./dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only --poll ./src/server.ts",
-    "docker:up": "docker-compose up --build",
-    "docker:mongo": "docker exec -it medical-solution-mongo mongosh"
+  "dev": "ts-node-dev --respawn --transpile-only --poll ./src/server.ts",
+  "docker:up": "docker-compose up --build",
+   "docker:down": "docker-compose down",
+  "docker:up:prod": "docker-compose -f docker-compose.prod.yml up --build -d",
+  "docker:down:prod": "docker-compose -f docker-compose.prod.yml down"
   },
   "keywords": [],
   "author": "",

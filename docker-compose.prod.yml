@@ -5,23 +5,21 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq-medical-solution
     ports:
-      - "5675:5672"  # Changed left port to avoid conflict with old project
-      - "15675:15672" # Changed left port to avoid conflict with old project
+      - "5675:5672"      # RabbitMQ AMQP port
+      - "15675:15672"    # RabbitMQ management UI
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-
+    restart: unless-stopped
 
   medical-solution-express:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
     depends_on:
       - medical-solution-rabbitmq
     env_file:
       - .env
     ports:
-      - "4005:4000" # Changed left port to avoid conflict with old project
-    volumes:
-      - .:/app
-    command: npm run dev
-
-
+      - "4005:4000"      # Host:Container
+    restart: unless-stopped
