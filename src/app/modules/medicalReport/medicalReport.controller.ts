@@ -28,7 +28,10 @@ const getAiResponse = catchAsync(async (req, res) => {
 });
 
 const saveAiResponse = catchAsync(async (req, res) => {
-  const result = await MedicalReportService.saveAiResponse(req.body);
+  const result = await MedicalReportService.saveAiResponse(
+    req.body,
+    req.user.userId
+  );
 
   sendResponse(res, {
     success: true,
@@ -37,5 +40,19 @@ const saveAiResponse = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getSavedReport = catchAsync(async (req, res) => {
+  const result = await MedicalReportService.getSavedReport(req.user.userId);
 
-export const MedicalReportController = { getAiResponse, saveAiResponse };
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "Report fetched successfully.",
+    data: result,
+  });
+});
+
+export const MedicalReportController = {
+  getAiResponse,
+  saveAiResponse,
+  getSavedReport,
+};

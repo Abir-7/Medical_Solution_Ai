@@ -19,4 +19,10 @@ router.post(
   MedicalReportController.saveAiResponse
 );
 
+router.get(
+  "/get-medical-report",
+  auth("USER"),
+  MedicalReportController.getSavedReport
+);
+
 export const MedicalReportRoute = router;

@@ -1,21 +1,21 @@
 import mongoose, { Schema } from "mongoose";
 import { IMedicalReport } from "./medicalReport.interface";
 
-const MedicalReportSchema = new Schema({
-  reportId: {
-    type: String,
-    required: true,
-    unique: true,
+const ReportItemSchema = new Schema(
+  {
+    title: { type: String, required: true },
+    summary: { type: String, required: true },
   },
-  title: {
-    type: String,
-    required: true,
+  { _id: false } // prevent creating _id for each report item
+);
+
+const MedicalReportSchema = new Schema(
+  {
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    report: { type: [ReportItemSchema], default: [] },
   },
-  description: {
-    type: String,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 // Create and export the model
 const MedicalReport = mongoose.model<IMedicalReport>(

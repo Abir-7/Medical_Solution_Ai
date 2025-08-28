@@ -9,6 +9,7 @@ import { askGeminiWithBase64Data } from "../../ai/geminiAi";
 import { fileToBase64 } from "../../utils/helper/imageToBase64";
 import unlinkFile from "../../middleware/fileUpload/unlinkFiles";
 import { getRelativePath } from "../../middleware/fileUpload/getRelativeFilePath";
+import MedicalReport from "./medicalReport.model";
 
 const getAiResponse = async (
   file: { path: string; mimetype: string }[],
@@ -86,10 +87,19 @@ const getAiResponse = async (
   return JSON.parse(summaryRes);
 };
 
-const saveAiResponse = async (data: any) => {
-  console.log(data);
+const saveAiResponse = async (data: any, userId: string) => {
+  const savedData = await MedicalReport.create({ user: userId, report: data });
 
-  return { success: true };
+  return savedData;
+};
+const getSavedReport = async (userId: string) => {
+  const savedData = await MedicalReport.find({ user: userId });
+
+  return savedData;
 };
 
-export const MedicalReportService = { getAiResponse, saveAiResponse };
+export const MedicalReportService = {
+  getAiResponse,
+  saveAiResponse,
+  getSavedReport,
+};
