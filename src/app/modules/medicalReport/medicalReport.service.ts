@@ -142,7 +142,7 @@ export const saveAiResponse = async (
   const downloadUrl = `${BASE_URL}/doc/${fileName}`;
 
   return {
-    ...savedData.toObject(),
+    //...savedData.toObject(),
     downloadUrl,
   };
 };
