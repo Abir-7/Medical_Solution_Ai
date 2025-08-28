@@ -4,7 +4,7 @@ import { IMedicalReport } from "./medicalReport.interface";
 const ReportItemSchema = new Schema(
   {
     title: { type: String, required: true },
-    summary: { type: String, required: true },
+    summary: { type: String },
   },
   { _id: false } // prevent creating _id for each report item
 );

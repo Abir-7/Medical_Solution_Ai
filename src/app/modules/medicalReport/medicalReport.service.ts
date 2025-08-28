@@ -11,10 +11,15 @@ import unlinkFile from "../../middleware/fileUpload/unlinkFiles";
 import { getRelativePath } from "../../middleware/fileUpload/getRelativeFilePath";
 import MedicalReport from "./medicalReport.model";
 
+import { Document, Packer, Paragraph, TextRun } from "docx";
+import fs from "fs";
+import path from "path";
+import logger from "../../utils/serverTools/logger";
 const getAiResponse = async (
   file: { path: string; mimetype: string }[],
   promt: string
 ) => {
+  logger.info("hit");
   if (file.length <= 0) {
     throw new AppError(status.NOT_FOUND, "File not found.");
   }
@@ -32,7 +37,7 @@ const getAiResponse = async (
 
   // Loop through the files and process each one separately
   for (const fileItem of file) {
-    const { path, mimetype } = fileItem;
+    const { path: filePath, mimetype } = fileItem;
 
     // Check the file type and process accordingly
     if (mimetype.includes("image")) {
@@ -42,10 +47,10 @@ const getAiResponse = async (
       contents.push({
         inlineData: {
           mimeType: "image/jpeg",
-          data: await fileToBase64(path),
+          data: await fileToBase64(filePath),
         },
       });
-      unlinkFile(getRelativePath(path));
+      unlinkFile(getRelativePath(filePath));
     } else if (mimetype.includes("pdf")) {
       contents.push({
         text: `### PDF Section:`, // Section title for PDF
@@ -53,10 +58,10 @@ const getAiResponse = async (
       contents.push({
         inlineData: {
           mimeType: "application/pdf",
-          data: await fileToBase64(path),
+          data: await fileToBase64(filePath),
         },
       });
-      unlinkFile(getRelativePath(path));
+      unlinkFile(getRelativePath(filePath));
     } else if (mimetype.includes("audio")) {
       contents.push({
         text: `### Audio Section:`, // Section title for audio
@@ -64,10 +69,10 @@ const getAiResponse = async (
       contents.push({
         inlineData: {
           mimeType: "audio/mp3",
-          data: await fileToBase64(path),
+          data: await fileToBase64(filePath),
         },
       });
-      unlinkFile(getRelativePath(path));
+      unlinkFile(getRelativePath(filePath));
     }
   }
 
@@ -87,10 +92,59 @@ const getAiResponse = async (
   return JSON.parse(summaryRes);
 };
 
-const saveAiResponse = async (data: any, userId: string) => {
+export const saveAiResponse = async (
+  data: any,
+  userId: string = "6891a83bd0ea64bc6e16a61e"
+) => {
+  const BASE_URL = "https://01t71ck4-4005.inc1.devtunnels.ms";
+  // 1. Save to MongoDB
   const savedData = await MedicalReport.create({ user: userId, report: data });
 
-  return savedData;
+  // 2. Build DOCX content
+  const children = [
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: `Medical Report for User: ${userId}`,
+          bold: true,
+          size: 28,
+        }),
+      ],
+    }),
+    new Paragraph(" "),
+  ];
+
+  data.forEach((r: any, idx: number) => {
+    children.push(
+      new Paragraph({
+        children: [new TextRun({ text: `${idx + 1}. ${r.title}`, bold: true })],
+      }),
+      new Paragraph(r.summary),
+      new Paragraph(" ")
+    );
+  });
+
+  const doc = new Document({ sections: [{ children }] });
+
+  // 3. Generate buffer
+  const buffer = await Packer.toBuffer(doc);
+
+  // 4. Save into uploads/doc
+  const folderPath = path.join(process.cwd(), "uploads", "doc");
+  fs.mkdirSync(folderPath, { recursive: true });
+
+  const fileName = `report-${savedData._id}.docx`;
+  const filePath = path.join(folderPath, fileName);
+
+  fs.writeFileSync(filePath, buffer);
+
+  // 5. Return public link using base URL
+  const downloadUrl = `${BASE_URL}/doc/${fileName}`;
+
+  return {
+    ...savedData.toObject(),
+    downloadUrl,
+  };
 };
 const getSavedReport = async (userId: string) => {
   const savedData = await MedicalReport.find({ user: userId });

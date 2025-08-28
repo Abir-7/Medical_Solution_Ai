@@ -30,7 +30,8 @@ const getAiResponse = catchAsync(async (req, res) => {
 const saveAiResponse = catchAsync(async (req, res) => {
   const result = await MedicalReportService.saveAiResponse(
     req.body,
-    req.user.userId
+    // req?.user?.userId
+    "6891a83bd0ea64bc6e16a61e"
   );
 
   sendResponse(res, {
@@ -41,7 +42,7 @@ const saveAiResponse = catchAsync(async (req, res) => {
   });
 });
 const getSavedReport = catchAsync(async (req, res) => {
-  const result = await MedicalReportService.getSavedReport(req.user.userId);
+  const result = await MedicalReportService.getSavedReport(req?.user.userId);
 
   sendResponse(res, {
     success: true,
