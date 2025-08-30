@@ -1,3 +1,4 @@
+/* eslint-disable arrow-body-style */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable quotes */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -91,16 +92,52 @@ const getAiResponse = async (
 
   return JSON.parse(summaryRes);
 };
-
 export const saveAiResponse = async (
   data: any,
   userId: string = "6891a83bd0ea64bc6e16a61e"
 ) => {
   const BASE_URL = "https://01t71ck4-4005.inc1.devtunnels.ms";
-  // 1. Save to MongoDB
+
+  // Save to MongoDB
   const savedData = await MedicalReport.create({ user: userId, report: data });
 
-  // 2. Build DOCX content
+  // Generate DOCX (folder creation handled inside)
+  const filePath = await createDoc(data, userId);
+
+  const downloadUrl = `${BASE_URL}/doc/${path.basename(filePath)}`;
+  return { downloadUrl };
+};
+
+const getSavedReport = async (userId: string) => {
+  const savedData = await MedicalReport.find({ user: userId });
+
+  return savedData;
+};
+
+export const MedicalReportService = {
+  getAiResponse,
+  saveAiResponse,
+  getSavedReport,
+};
+
+const stripMarkdown = (text: string) => {
+  return text
+    .replace(/!\[.*?\]\(.*?\)/g, "") // images
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // links -> text
+    .replace(/(\*\*|__)(.*?)\1/g, "$2") // bold
+    .replace(/(\*|_)(.*?)\1/g, "$2") // italic
+    .replace(/`{1,3}(.*?)`{1,3}/g, "$1") // inline code
+    .replace(/~~(.*?)~~/g, "$1") // strikethrough
+    .replace(/>\s*(.*)/g, "$1") // blockquote
+    .replace(/#+\s*(.*)/g, "$1") // headings
+    .replace(/[-*]\s+(.*)/g, "$1") // lists
+    .replace(/\n{2,}/g, "\n"); // multiple newlines -> single
+};
+
+export const createDoc = async (data: any[], userId: string) => {
+  const folderPath = path.join(process.cwd(), "uploads", "doc");
+  fs.mkdirSync(folderPath, { recursive: true });
+
   const children = [
     new Paragraph({
       children: [
@@ -117,43 +154,25 @@ export const saveAiResponse = async (
   data.forEach((r: any, idx: number) => {
     children.push(
       new Paragraph({
-        children: [new TextRun({ text: `${idx + 1}. ${r.title}`, bold: true })],
+        children: [
+          new TextRun({
+            text: `${idx + 1}. ${stripMarkdown(r.title)}`,
+            bold: true,
+          }),
+        ],
       }),
-      new Paragraph(r.summary),
+      new Paragraph(stripMarkdown(r.summary)),
       new Paragraph(" ")
     );
   });
 
   const doc = new Document({ sections: [{ children }] });
 
-  // 3. Generate buffer
   const buffer = await Packer.toBuffer(doc);
 
-  // 4. Save into uploads/doc
-  const folderPath = path.join(process.cwd(), "uploads", "doc");
-  fs.mkdirSync(folderPath, { recursive: true });
-
-  const fileName = `report-${savedData._id}.docx`;
+  const fileName = `report-${Date.now()}.docx`;
   const filePath = path.join(folderPath, fileName);
-
   fs.writeFileSync(filePath, buffer);
 
-  // 5. Return public link using base URL
-  const downloadUrl = `${BASE_URL}/doc/${fileName}`;
-
-  return {
-    //...savedData.toObject(),
-    downloadUrl,
-  };
-};
-const getSavedReport = async (userId: string) => {
-  const savedData = await MedicalReport.find({ user: userId });
-
-  return savedData;
-};
-
-export const MedicalReportService = {
-  getAiResponse,
-  saveAiResponse,
-  getSavedReport,
+  return filePath;
 };

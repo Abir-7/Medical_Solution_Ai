@@ -9,7 +9,7 @@ import { jsonWebToken } from "../../utils/jwt/jwt";
 import { UserProfile } from "../users/userProfile/userProfile.model";
 import getExpiryTime from "../../utils/helper/getExpiryTime";
 import getOtp from "../../utils/helper/getOtp";
-import { sendEmail } from "../../utils/sendEmail";
+
 import getHashedPassword from "../../utils/helper/getHashedPassword";
 import { appConfig } from "../../config";
 import { IUser } from "../users/user/user.interface";
@@ -82,7 +82,9 @@ const createUser = async (data: {
       data: {
         to: data.email,
         subject: "Email Verification Code",
-        text: `Your code is: ${otp}`,
+        code: otp, // ✅ OTP code
+        expireTime: 15,
+        purpose: "Email Verification", // 🔹 dynamic purpose
       },
     });
 
@@ -136,16 +138,15 @@ const userLogin = async (loginData: { email: string; password: string }) => {
     appConfig.jwt.jwt_refresh_exprire
   );
 
-  const data = jwtDecode(accessToken);
-  console.log(data.exp);
+  const decodedAccess = jwtDecode(accessToken);
+  const decodedRefresh = jwtDecode(refreshToken);
+
   return {
-    access_token_valid_till: data?.exp as number,
     accessToken,
     refreshToken,
-    userData: {
-      ...userData.toObject(),
-      password: null,
-    },
+    user_id: userData._id,
+    access_token_valid_till: decodedAccess.exp, // expiration timestamp of access token
+    refresh_token_valid_till: decodedRefresh.exp,
   };
 };
 
@@ -238,11 +239,22 @@ const forgotPasswordRequest = async (
     token: null,
   };
 
-  await sendEmail(
-    user.email,
-    "Reset Password Verification Code",
-    `Your code is: ${otp}`
-  );
+  // await sendEmail(
+  //   user.email,
+  //   "Reset Password Verification Code",
+  //   `Your code is: ${otp}`
+  // );
+
+  await dispatchJob({
+    type: "email",
+    data: {
+      to: user.email,
+      subject: "Forgot Password Verification Code",
+      code: otp, // ✅ OTP code
+      expireTime: 15, // minutes
+      purpose: "Forgot Password", // 🔹 dynamic purpose for template
+    },
+  });
 
   await User.findOneAndUpdate(
     { email },
@@ -417,7 +429,18 @@ const reSendOtp = async (userEmail: string): Promise<{ message: string }> => {
     throw new AppError(500, "Failed to Send. Try Again!");
   }
 
-  await sendEmail(userEmail, "Verification Code", `CODE: ${OTP}`);
+  //await sendEmail(userEmail, "Verification Code", `CODE: ${OTP}`);
+
+  await dispatchJob({
+    type: "email",
+    data: {
+      to: userEmail,
+      subject: "Verification Code",
+      code: OTP, // ✅ OTP code
+      expireTime: 15, // minutes
+      purpose: "Verification", // 🔹 dynamic purpose
+    },
+  });
   return { message: "Verification code send." };
 };
 export const AuthService = {

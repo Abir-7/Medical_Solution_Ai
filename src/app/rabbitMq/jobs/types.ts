@@ -4,7 +4,9 @@ export type JobType = "email" | "notification" | "report";
 export interface EmailJob {
   to: string;
   subject: string;
-  text: string;
+  code?: string;
+  expireTime?: number;
+  purpose?: string; // optional for dynamic verification type
 }
 
 export interface JobPayload {
