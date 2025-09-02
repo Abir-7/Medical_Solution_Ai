@@ -13,6 +13,16 @@ const getMyData = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getMyToken = catchAsync(async (req, res) => {
+  const result = await UserService.getMyToken(req.user.userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "User token is fetched successfully",
+    data: result,
+  });
+});
 
 const deleteMe = catchAsync(async (req, res) => {
   const result = await UserService.deleteUser(req.user.userId);
@@ -37,7 +47,7 @@ const deleteUser = catchAsync(async (req, res) => {
 
 export const UserController = {
   getMyData,
-
+  getMyToken,
   deleteMe,
   deleteUser,
 };

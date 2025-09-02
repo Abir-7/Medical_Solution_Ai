@@ -8,7 +8,9 @@ const useToken = async (amount: number, userId: string) => {
   }
 
   tokenData.token = tokenData.token - amount;
-  return await tokenData.save();
+  const updatedData = await tokenData.save();
+  console.log(updatedData.token);
+  return { remaining_token: updatedData.token };
 };
 
 export const UserTokenService = { useToken };

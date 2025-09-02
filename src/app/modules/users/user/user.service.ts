@@ -4,6 +4,7 @@ import { Types } from "mongoose";
 import { UserProfile } from "../userProfile/userProfile.model";
 
 import User from "./user.model";
+import UserToken from "../userToken/userToken.model";
 
 const getMyData = async (userId: string) => {
   const data = await UserProfile.aggregate([
@@ -64,8 +65,14 @@ const deleteUser = async (userId: string) => {
 
   return user;
 };
+const getMyToken = async (userId: string) => {
+  const user = await UserToken.findOne({ user: userId });
+
+  return { userToken: user?.token ? user?.token : 0 };
+};
 
 export const UserService = {
   getMyData,
   deleteUser,
+  getMyToken,
 };
