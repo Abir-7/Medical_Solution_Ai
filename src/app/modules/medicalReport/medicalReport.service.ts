@@ -109,7 +109,9 @@ export const saveAiResponse = async (
 };
 
 const getSavedReport = async (userId: string) => {
-  const savedData = await MedicalReport.find({ user: userId });
+  const savedData = await MedicalReport.find({ user: userId }).sort({
+    createdAt: -1,
+  });
 
   return savedData;
 };

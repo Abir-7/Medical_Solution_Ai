@@ -71,8 +71,17 @@ const getMyToken = async (userId: string) => {
   return { userToken: user?.token ? user?.token : 0 };
 };
 
+const checkUserTokenAvailability = async (userId: string) => {
+  const user_token = await UserToken.findOne({ user: userId });
+
+  const has_token = !!user_token && (user_token.token ?? 0) > 4;
+
+  return { has_token };
+};
+
 export const UserService = {
   getMyData,
   deleteUser,
   getMyToken,
+  checkUserTokenAvailability,
 };

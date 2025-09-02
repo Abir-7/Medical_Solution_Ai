@@ -23,6 +23,16 @@ const getMyToken = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const checkUserTokenAvailability = catchAsync(async (req, res) => {
+  const result = await UserService.getMyToken(req.body.userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "User token checking successfully",
+    data: result,
+  });
+});
 
 const deleteMe = catchAsync(async (req, res) => {
   const result = await UserService.deleteUser(req.user.userId);
@@ -50,4 +60,5 @@ export const UserController = {
   getMyToken,
   deleteMe,
   deleteUser,
+  checkUserTokenAvailability,
 };
