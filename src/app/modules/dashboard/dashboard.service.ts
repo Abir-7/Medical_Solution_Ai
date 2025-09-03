@@ -298,18 +298,21 @@ const tokenData = async () => {
     users: userData,
   };
 };
-
 const addTerms = async (data: { content: string }) => {
   const updated = await TermsAndConditions.findOneAndUpdate(
-    {},
+    {}, // match any (or you could use a fixed key like { type: "default" })
     { $set: data },
     {
       new: true,
-      upsert: true,
+      upsert: true, // create if not exist
     }
   );
 
   return updated;
+};
+
+const getTerms = async () => {
+  return await TermsAndConditions.findOne(); // simpler & safer than find()[0]
 };
 
 export const DashboardService = {
@@ -317,4 +320,5 @@ export const DashboardService = {
   userList,
   tokenData,
   addTerms,
+  getTerms,
 };

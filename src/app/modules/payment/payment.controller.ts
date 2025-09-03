@@ -3,16 +3,36 @@ import status from "http-status";
 import { PaymentService } from "./payment.service";
 import catchAsync from "../../utils/serverTools/catchAsync";
 import sendResponse from "../../utils/serverTools/sendResponse";
+import { Request, Response } from "express";
 
-const createPaymentIntent = catchAsync(async (req, res) => {
-  const result = await PaymentService.createPaymentIntent(
-    req.params.tokenPackageId,
-    req.user.userId
+// const createPaymentIntent = catchAsync(async (req, res) => {
+//   const result = await PaymentService.createPaymentIntent(
+//     req.params.tokenPackageId,
+//     req.user.userId
+//   );
+//   sendResponse(res, {
+//     success: true,
+//     statusCode: status.OK,
+//     message: "Webhook response",
+//     data: result,
+//   });
+// });
+
+const createPaymentIntent = catchAsync(async (req: Request, res: Response) => {
+  const tokenPackageId = req.params.tokenPackageId;
+  const userId = req.user.userId;
+  const userEmail = req.user.userEmail;
+
+  const result = await PaymentService.createPayUPaymentIntent(
+    tokenPackageId,
+    userId,
+    userEmail
   );
+
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
-    message: "Webhook response",
+    message: "PayU payment created",
     data: result,
   });
 });

@@ -42,10 +42,20 @@ const addTerms = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getTerms = catchAsync(async (req, res) => {
+  const result = await DashboardService.getTerms();
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "Terms fetched successfully.",
+    data: result,
+  });
+});
 
 export const DashboardController = {
   dashboardData,
   userList,
   tokenData,
   addTerms,
+  getTerms,
 };

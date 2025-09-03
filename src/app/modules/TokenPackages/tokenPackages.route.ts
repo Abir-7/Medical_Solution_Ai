@@ -5,6 +5,6 @@ import { auth } from "../../middleware/auth/auth";
 
 const router = Router();
 router.post("/new", auth("ADMIN"), TokenPackageController.addNewPackage);
-router.get("/", auth("ADMIN"), TokenPackageController.getAllPackage);
+router.get("/", auth("ADMIN", "USER"), TokenPackageController.getAllPackage);
 
 export const TokenPackageRoute = router;

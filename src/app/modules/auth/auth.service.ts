@@ -147,6 +147,7 @@ const userLogin = async (loginData: { email: string; password: string }) => {
     user_id: userData._id,
     access_token_valid_till: decodedAccess.exp, // expiration timestamp of access token
     refresh_token_valid_till: decodedRefresh.exp,
+    userData: { role: userData.role },
   };
 };
 

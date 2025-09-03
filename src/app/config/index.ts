@@ -57,6 +57,15 @@ export const appConfig = {
       secret_key: process.env.SECRET_KEY,
       webhook: process.env.STRIPE_WEBHOOK_SECRET,
     },
+    payu: {
+      apiKey: process.env.PAYU_API_KEY,
+      merchantId: process.env.PAYU_MERCHANT_ID,
+      accountId: process.env.PAYU_ACCOUNT_ID,
+      apiLogin: process.env.PAYU_API_LOGIN,
+      publicKey: process.env.PAYU_PUBLIC_KEY,
+      apiUrl: process.env.PAYU_API_URL,
+      paymentCountry: process.env.PAYU_PAYMENT_COUNTRY || "CO",
+    },
   },
   encrypt: {
     s_key: process.env.ENCRYPTION_SECRET_KEY,

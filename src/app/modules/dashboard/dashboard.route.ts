@@ -8,4 +8,5 @@ router.get("/", DashboardController.dashboardData);
 router.get("/user-list", DashboardController.userList);
 router.get("/token-data", DashboardController.tokenData);
 router.post("/add-terms", DashboardController.addTerms);
+router.post("/get-terms", DashboardController.getTerms);
 export const DashboardRoute = router;
