@@ -59,8 +59,9 @@ export const appConfig = {
     },
     payu: {
       apiKey: process.env.PAYU_API_KEY,
-      merchantId: process.env.PAYU_MERCHANT_ID,
-      accountId: process.env.PAYU_ACCOUNT_ID,
+      accountId: parseInt(process.env.PAYU_ACCOUNT_ID as string, 10),
+      merchantId: parseInt(process.env.PAYU_MERCHANT_ID as string, 10),
+
       apiLogin: process.env.PAYU_API_LOGIN,
       publicKey: process.env.PAYU_PUBLIC_KEY,
       apiUrl: process.env.PAYU_API_URL,

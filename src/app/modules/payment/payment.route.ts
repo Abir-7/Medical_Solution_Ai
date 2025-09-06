@@ -6,11 +6,12 @@ import { auth } from "../../middleware/auth/auth";
 const router = Router();
 
 router.get(
-  "/new/:tokenPackageId",
+  "/new-payment/:tokenPackageId",
   auth("USER"),
-  PaymentController.createPaymentIntent
+  PaymentController.createPayment
 );
 
+router.post("/payu-webhook", PaymentController.payUWebhook);
 // router.post(
 //   "/webhook",
 //   express.raw({ type: "application/json" }),
