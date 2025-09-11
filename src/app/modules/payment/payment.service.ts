@@ -108,6 +108,9 @@ const createPayUPayment = async (
     });
 
     const result = response.data;
+    if (response.data.code === "ERROR") {
+      throw Error(response.data.error || "Failed to make payment.");
+    }
 
     const payment = await Payment.create({
       user: userId,

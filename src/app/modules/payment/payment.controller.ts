@@ -4,6 +4,7 @@ import { PaymentService } from "./payment.service";
 import catchAsync from "../../utils/serverTools/catchAsync";
 import sendResponse from "../../utils/serverTools/sendResponse";
 import { Request, Response } from "express";
+import AppError from "../../errors/AppError";
 
 export const createPayment = catchAsync(async (req: Request, res: Response) => {
   const tokenPackageId = req.params.tokenPackageId;
@@ -14,12 +15,7 @@ export const createPayment = catchAsync(async (req: Request, res: Response) => {
   const { cardNumber, expDate, cvv, name, paymentMethod } = req.body;
 
   if (!cardNumber || !expDate || !cvv || !name || !paymentMethod) {
-    sendResponse(res, {
-      success: false,
-      statusCode: status.BAD_REQUEST,
-      message: "Missing required card/payment information",
-      data: null,
-    });
+    throw new AppError(404, "Missing required card/payment information");
   }
 
   // 1️⃣ Call your updated PaymentService function with paymentData
