@@ -3,7 +3,10 @@
 
 import { userRoles } from "../../interface/auth.interface";
 import Payment from "../payment/payment.model";
-import TermsAndConditions from "../termCondition/term.model";
+import {
+  Privacy,
+  TermsAndConditions,
+} from "../term&privacy/term.privacy.model";
 import User from "../users/user/user.model";
 import { UserProfile } from "../users/userProfile/userProfile.model";
 
@@ -312,7 +315,24 @@ const addTerms = async (data: { content: string }) => {
 };
 
 const getTerms = async () => {
-  return await TermsAndConditions.findOne(); // simpler & safer than find()[0]
+  return await Privacy.findOne(); // simpler & safer than find()[0]
+};
+
+const addPrivacy = async (data: { content: string }) => {
+  const updated = await Privacy.findOneAndUpdate(
+    {}, // match any (or you could use a fixed key like { type: "default" })
+    { $set: data },
+    {
+      new: true,
+      upsert: true, // create if not exist
+    }
+  );
+
+  return updated;
+};
+
+const getPrivacy = async () => {
+  return await Privacy.findOne(); // simpler & safer than find()[0]
 };
 
 export const DashboardService = {
@@ -321,4 +341,6 @@ export const DashboardService = {
   tokenData,
   addTerms,
   getTerms,
+  addPrivacy,
+  getPrivacy,
 };

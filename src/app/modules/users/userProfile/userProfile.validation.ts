@@ -13,6 +13,7 @@ export const zodUpdateProfileSchema = z.object({
       address: z.string().optional(),
       image: z.string().optional(),
       user: z.string().optional(),
+      specialty: z.string().optional(),
     })
     .strict(),
 });

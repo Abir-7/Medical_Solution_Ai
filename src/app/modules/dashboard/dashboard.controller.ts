@@ -52,10 +52,31 @@ const getTerms = catchAsync(async (req, res) => {
   });
 });
 
+const addPrivacy = catchAsync(async (req, res) => {
+  const result = await DashboardService.addPrivacy(req.body);
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "Privacy added successfully.",
+    data: result,
+  });
+});
+const getPrivacy = catchAsync(async (req, res) => {
+  const result = await DashboardService.getPrivacy();
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "Privacy fetched successfully.",
+    data: result,
+  });
+});
+
 export const DashboardController = {
   dashboardData,
   userList,
   tokenData,
   addTerms,
   getTerms,
+  getPrivacy,
+  addPrivacy,
 };
