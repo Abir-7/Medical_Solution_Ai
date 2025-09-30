@@ -92,10 +92,7 @@ const getAiResponse = async (
 
   return JSON.parse(summaryRes);
 };
-export const saveAiResponse = async (
-  data: any,
-  userId: string = "6891a83bd0ea64bc6e16a61e"
-) => {
+export const saveAiResponse = async (data: any, userId: string) => {
   const BASE_URL = "https://01t71ck4-4005.inc1.devtunnels.ms";
 
   // Save to MongoDB
