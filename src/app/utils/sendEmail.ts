@@ -152,9 +152,8 @@ export async function sendEmail({
   to,
   subject,
   code,
-  projectName = "MedicalSolution",
+  projectName = "RedactorApp",
   expireTime = 10,
-
   purpose = "Verification", // default if not provided
 }: EmailOptions) {
   try {

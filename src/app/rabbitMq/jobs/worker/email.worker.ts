@@ -9,8 +9,8 @@ export const handleEmailJob = async (data: EmailJob) => {
       subject: data.subject,
       code: data.code, // 🔑 pass OTP here
       expireTime: data.expireTime ?? 10,
-      projectName: "MedicalSolution",
-      supportUrl: "https://support.medicalsolution.com",
+      projectName: "RedactorApp",
+
       purpose: data.purpose ?? "Verification", // 🔹 dynamic purpose
     });
 
