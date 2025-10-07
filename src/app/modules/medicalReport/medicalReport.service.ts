@@ -93,7 +93,7 @@ const getAiResponse = async (
   return JSON.parse(summaryRes);
 };
 export const saveAiResponse = async (data: any, userId: string) => {
-  const BASE_URL = "https://01t71ck4-4005.inc1.devtunnels.ms";
+  const BASE_URL = "https://api.redactorapp.com";
 
   // Save to MongoDB
   const savedData = await MedicalReport.create({ user: userId, report: data });
