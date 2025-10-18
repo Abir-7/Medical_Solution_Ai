@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import AppError from "../../../errors/AppError";
+import logger from "../../../utils/serverTools/logger";
 import UserToken from "./userToken.model";
 
 const useToken = async (amount: number, userId: string) => {
+  logger.info(userId);
   try {
     const tokenData = await UserToken.findOne({ user: userId });
     if (!tokenData) {
@@ -11,7 +13,7 @@ const useToken = async (amount: number, userId: string) => {
 
     tokenData.token = tokenData.token - amount;
     const updatedData = await tokenData.save();
-    console.log(updatedData.token);
+
     return { remaining_token: updatedData.token };
   } catch (error: any) {
     throw new Error(error);

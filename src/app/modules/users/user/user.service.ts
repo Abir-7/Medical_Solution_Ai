@@ -6,6 +6,7 @@ import { UserProfile } from "../userProfile/userProfile.model";
 
 import User from "./user.model";
 import UserToken from "../userToken/userToken.model";
+import logger from "../../../utils/serverTools/logger";
 
 const getMyData = async (userId: string) => {
   const data = await UserProfile.aggregate([
@@ -73,6 +74,7 @@ const getMyToken = async (userId: string) => {
 };
 
 const checkUserTokenAvailability = async (userId: string) => {
+  logger.info(userId);
   try {
     const user_token = await UserToken.findOne({ user: userId });
 
