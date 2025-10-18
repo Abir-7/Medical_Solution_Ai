@@ -34,6 +34,8 @@ const updateProfileData = catchAsync(async (req, res) => {
 });
 
 const updateProfile = catchAsync(async (req, res) => {
+  console.log("object");
+
   const filePath = req.file?.path;
 
   const userData = {

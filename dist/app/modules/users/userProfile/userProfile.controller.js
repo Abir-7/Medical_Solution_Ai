@@ -41,6 +41,7 @@ const updateProfileData = (0, catchAsync_1.default)((req, res) => __awaiter(void
 }));
 const updateProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
+    console.log("object");
     const filePath = (_a = req.file) === null || _a === void 0 ? void 0 : _a.path;
     const userData = Object.assign(Object.assign({}, req.body), (filePath && { image: (0, getRelativeFilePath_1.getRelativePath)(filePath) }));
     const result = yield userProfile_service_1.UserProfileService.updateProfile(userData, req.user.userEmail);
