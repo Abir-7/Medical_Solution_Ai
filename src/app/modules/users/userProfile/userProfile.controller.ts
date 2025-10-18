@@ -37,7 +37,7 @@ const updateProfile = catchAsync(async (req, res) => {
   console.log("object");
 
   const filePath = req.file?.path;
-
+  console.log(filePath);
   const userData = {
     ...req.body,
     ...(filePath && { image: getRelativePath(filePath) }),

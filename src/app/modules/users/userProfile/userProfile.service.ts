@@ -75,6 +75,7 @@ const updateProfile = async (
     throw new AppError(status.NOT_FOUND, "User not found.");
   }
   const data = removeFalsyFields(userdata);
+  console.log(data, "with image");
   const updated = await UserProfile.findOneAndUpdate({ user: user._id }, data, {
     new: true,
   });
