@@ -8,19 +8,5 @@ export interface IUserProfile {
   image?: string;
   user: IBaseUser;
   country: string;
-  specialty: Specialty;
-}
-
-export enum Specialty {
-  Cardiologist = "Cardiologist",
-  Dermatologist = "Dermatologist",
-  Neurologist = "Neurologist",
-  Pediatrician = "Pediatrician",
-  Orthopedist = "Orthopedist",
-  GeneralPractitioner = "General Practitioner",
-  Dentist = "Dentist",
-  Surgeon = "Surgeon",
-  Psychiatrist = "Psychiatrist",
-  Radiologist = "Radiologist",
-  // Add more specialties as needed
+  specialty: string;
 }
