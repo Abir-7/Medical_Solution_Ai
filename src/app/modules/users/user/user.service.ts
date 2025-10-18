@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
 import { Types } from "mongoose";
@@ -72,11 +73,15 @@ const getMyToken = async (userId: string) => {
 };
 
 const checkUserTokenAvailability = async (userId: string) => {
-  const user_token = await UserToken.findOne({ user: userId });
+  try {
+    const user_token = await UserToken.findOne({ user: userId });
 
-  const has_token = !!user_token && (user_token.token ?? 0) > 4;
+    const has_token = !!user_token && (user_token.token ?? 0) > 4;
 
-  return { has_token };
+    return { has_token };
+  } catch (error: any) {
+    throw new Error(error);
+  }
 };
 
 export const UserService = {
