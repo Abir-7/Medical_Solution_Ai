@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TokenPackageRoute = void 0;
+const express_1 = require("express");
+const tokenPackages_controller_1 = require("./tokenPackages.controller");
+const auth_1 = require("../../middleware/auth/auth");
+const router = (0, express_1.Router)();
+router.post("/new", (0, auth_1.auth)("ADMIN"), tokenPackages_controller_1.TokenPackageController.addNewPackage);
+router.get("/", (0, auth_1.auth)("ADMIN", "USER"), tokenPackages_controller_1.TokenPackageController.getAllPackage);
+exports.TokenPackageRoute = router;

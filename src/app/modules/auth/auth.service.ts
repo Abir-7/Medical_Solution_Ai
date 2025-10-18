@@ -15,7 +15,7 @@ import { appConfig } from "../../config";
 import { IUser } from "../users/user/user.interface";
 import mongoose from "mongoose";
 import { isTimeExpired } from "../../utils/helper/isTimeExpire";
-import { Specialty } from "../users/userProfile/userProfile.interface";
+
 import { dispatchJob } from "../../rabbitMq/jobs";
 import UserToken from "../users/userToken/userToken.model";
 import { jwtDecode } from "jwt-decode";
@@ -25,7 +25,7 @@ const createUser = async (data: {
   fullName: string;
   password: string;
   country: string;
-  specialty: Specialty;
+  specialty: string;
 }): Promise<Partial<IUser>> => {
   const session = await mongoose.startSession();
   session.startTransaction();

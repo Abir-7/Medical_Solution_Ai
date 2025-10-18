@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MedicalReportRoute = void 0;
+const express_1 = require("express");
+const medicalReport_controller_1 = require("./medicalReport.controller");
+const fileUploadHandler_1 = require("../../middleware/fileUpload/fileUploadHandler");
+const parseDataField_1 = require("../../middleware/fileUpload/parseDataField");
+const auth_1 = require("../../middleware/auth/auth");
+const router = (0, express_1.Router)();
+router.post("/get-ai-res", fileUploadHandler_1.upload.array("file"), (0, parseDataField_1.parseDataField)("data"), medicalReport_controller_1.MedicalReportController.getAiResponse);
+router.post("/save-ai-response", (0, auth_1.auth)("USER"), medicalReport_controller_1.MedicalReportController.saveAiResponse);
+router.get("/get-medical-report", (0, auth_1.auth)("USER"), medicalReport_controller_1.MedicalReportController.getSavedReport);
+exports.MedicalReportRoute = router;
