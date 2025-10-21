@@ -96,10 +96,11 @@ export const saveAiResponse = async (data: any, userId: string) => {
   const BASE_URL = "https://api.redactorapp.com";
 
   // Save to MongoDB
-  const savedData = await MedicalReport.create({ user: userId, report: data });
 
   // Generate DOCX (folder creation handled inside)
   const filePath = await createDoc(data, userId);
+
+  // await MedicalReport.create({ user: userId, report: data });
 
   const downloadUrl = `${BASE_URL}/doc/${path.basename(filePath)}`;
   return { downloadUrl };
@@ -119,7 +120,7 @@ export const MedicalReportService = {
   getSavedReport,
 };
 
-const stripMarkdown = (text: string) => {
+const stripMarkdown = (text: string = "") => {
   return text
     .replace(/!\[.*?\]\(.*?\)/g, "") // images
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // links -> text
