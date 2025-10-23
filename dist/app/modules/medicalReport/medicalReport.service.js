@@ -90,9 +90,9 @@ const getAiResponse = (file, promt) => __awaiter(void 0, void 0, void 0, functio
 const saveAiResponse = (data, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const BASE_URL = "https://api.redactorapp.com";
     // Save to MongoDB
-    const savedData = yield medicalReport_model_1.default.create({ user: userId, report: data });
     // Generate DOCX (folder creation handled inside)
     const filePath = yield (0, exports.createDoc)(data, userId);
+    // await MedicalReport.create({ user: userId, report: data });
     const downloadUrl = `${BASE_URL}/doc/${path_1.default.basename(filePath)}`;
     return { downloadUrl };
 });
@@ -108,7 +108,7 @@ exports.MedicalReportService = {
     saveAiResponse: exports.saveAiResponse,
     getSavedReport,
 };
-const stripMarkdown = (text) => {
+const stripMarkdown = (text = "") => {
     return text
         .replace(/!\[.*?\]\(.*?\)/g, "") // images
         .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // links -> text

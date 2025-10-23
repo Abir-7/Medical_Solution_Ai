@@ -35,7 +35,9 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     // Wait up to 15 minutes for request to finish uploading //
     app_1.default.setTimeout(15 * 60 * 1000);
     //------------------------//
-    app_1.default.listen(Number(config_1.appConfig.server.port), config_1.appConfig.server.ip, () => {
+    app_1.default.listen(Number(config_1.appConfig.server.port), 
+    // appConfig.server.ip as string,
+    () => {
         logger_1.default.info(`Example app listening on port ${config_1.appConfig.server.port} & ip:${config_1.appConfig.server.ip}`);
     });
 });

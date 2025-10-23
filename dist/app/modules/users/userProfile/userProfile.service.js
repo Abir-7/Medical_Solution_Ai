@@ -66,6 +66,7 @@ const updateProfile = (userdata, email) => __awaiter(void 0, void 0, void 0, fun
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not found.");
     }
     const data = (0, removeFalsyField_1.removeFalsyFields)(userdata);
+    console.log(data, "with image");
     const updated = yield userProfile_model_1.UserProfile.findOneAndUpdate({ user: user._id }, data, {
         new: true,
     });

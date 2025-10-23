@@ -32,7 +32,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
 
-app.use(express.json({ limit: "20mb" }));
+app.use(express.json({ limit: "200mb" }));
 
 app.use("/api", router);
 

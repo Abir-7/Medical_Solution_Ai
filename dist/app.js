@@ -32,7 +32,7 @@ app.use((0, cors_1.default)(corsOption));
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(rateLimite_1.limiter);
-app.use(express_1.default.json());
+app.use(express_1.default.json({ limit: "200mb" }));
 app.use("/api", routes_1.default);
 app.get("/", (req, res) => {
     res.send("Hello World! This app name is Ai medical solution");
