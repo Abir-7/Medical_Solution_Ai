@@ -77,7 +77,7 @@ const checkUserTokenAvailability = async (userId: string) => {
   logger.info(userId);
   try {
     const user_token = await UserToken.findOne({ user: userId });
-
+    console.log(user_token?.token, "will retrund boolen");
     const has_token = !!user_token && (user_token.token ?? 0) > 4;
 
     return { has_token };

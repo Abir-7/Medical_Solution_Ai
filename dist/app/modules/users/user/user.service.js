@@ -82,6 +82,7 @@ const checkUserTokenAvailability = (userId) => __awaiter(void 0, void 0, void 0,
     logger_1.default.info(userId);
     try {
         const user_token = yield userToken_model_1.default.findOne({ user: userId });
+        console.log(user_token === null || user_token === void 0 ? void 0 : user_token.token, "will retrund boolen");
         const has_token = !!user_token && ((_a = user_token.token) !== null && _a !== void 0 ? _a : 0) > 4;
         return { has_token };
     }

@@ -24,6 +24,7 @@ const useToken = (amount, userId) => __awaiter(void 0, void 0, void 0, function*
         if (!tokenData) {
             throw new AppError_1.default(404, "User token data not found.");
         }
+        logger_1.default.warn(tokenData.token);
         if (tokenData.token < amount) {
             throw new AppError_1.default(400, "User doesn't have enough tokens.");
         }

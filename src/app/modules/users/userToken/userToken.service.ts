@@ -12,6 +12,8 @@ const useToken = async (amount: number, userId: string) => {
       throw new AppError(404, "User token data not found.");
     }
 
+    logger.warn(tokenData.token);
+
     if (tokenData.token < amount) {
       throw new AppError(400, "User doesn't have enough tokens.");
     }
