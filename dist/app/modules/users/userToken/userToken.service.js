@@ -24,15 +24,15 @@ const useToken = (amount, userId) => __awaiter(void 0, void 0, void 0, function*
         if (!tokenData) {
             throw new AppError_1.default(404, "User token data not found.");
         }
-        tokenData.token = tokenData.token - amount;
-        if (tokenData.token - amount <= 0) {
-            throw new AppError_1.default(400, "User don't have enough token.");
+        if (tokenData.token < amount) {
+            throw new AppError_1.default(400, "User doesn't have enough tokens.");
         }
+        tokenData.token -= amount;
         const updatedData = yield tokenData.save();
         return { remaining_token: updatedData.token };
     }
     catch (error) {
-        throw new Error(error);
+        throw error instanceof AppError_1.default ? error : new Error(error.message);
     }
 });
 exports.UserTokenService = { useToken };
