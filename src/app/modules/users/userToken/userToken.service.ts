@@ -12,6 +12,11 @@ const useToken = async (amount: number, userId: string) => {
     }
 
     tokenData.token = tokenData.token - amount;
+
+    if (tokenData.token - amount <= 0) {
+      throw new AppError(400, "User don't have enough token.");
+    }
+
     const updatedData = await tokenData.save();
 
     return { remaining_token: updatedData.token };
