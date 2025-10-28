@@ -24,7 +24,7 @@ const getMyToken = catchAsync(async (req, res) => {
   });
 });
 const checkUserTokenAvailability = catchAsync(async (req, res) => {
-  const result = await UserService.getMyToken(req.body.userId);
+  const result = await UserService.checkUserTokenAvailability(req.body.userId);
 
   sendResponse(res, {
     success: true,

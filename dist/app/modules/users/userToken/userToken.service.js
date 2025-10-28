@@ -25,6 +25,9 @@ const useToken = (amount, userId) => __awaiter(void 0, void 0, void 0, function*
             throw new AppError_1.default(404, "User token data not found.");
         }
         tokenData.token = tokenData.token - amount;
+        if (tokenData.token - amount <= 0) {
+            throw new AppError_1.default(400, "User don't have enough token.");
+        }
         const updatedData = yield tokenData.save();
         return { remaining_token: updatedData.token };
     }

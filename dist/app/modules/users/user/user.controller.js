@@ -36,7 +36,7 @@ const getMyToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     });
 }));
 const checkUserTokenAvailability = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.UserService.getMyToken(req.body.userId);
+    const result = yield user_service_1.UserService.checkUserTokenAvailability(req.body.userId);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
