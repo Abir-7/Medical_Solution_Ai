@@ -15,7 +15,7 @@ router.post(
 
 router.post(
   "/save-ai-response",
-  // auth("USER"),
+  auth("USER"),
   MedicalReportController.saveAiResponse
 );
 

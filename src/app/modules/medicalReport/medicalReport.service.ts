@@ -16,6 +16,13 @@ import { Document, Packer, Paragraph, TextRun } from "docx";
 import fs from "fs";
 import path from "path";
 import logger from "../../utils/serverTools/logger";
+import { appConfig } from "../../config";
+
+export interface MedicalSection {
+  title: string;
+  summary: string;
+}
+
 const getAiResponse = async (
   file: { path: string; mimetype: string }[],
   promt: string
@@ -92,15 +99,16 @@ const getAiResponse = async (
 
   return JSON.parse(summaryRes);
 };
-export const saveAiResponse = async (data: any, userId: string) => {
-  const BASE_URL = "https://api.redactorapp.com";
-
-  // Save to MongoDB
+export const saveAiResponse = async (
+  data: MedicalSection[],
+  userId: string
+) => {
+  const BASE_URL = appConfig.server.baseurl;
 
   // Generate DOCX (folder creation handled inside)
   const filePath = await createDoc(data, userId);
 
-  // await MedicalReport.create({ user: userId, report: data });
+  await MedicalReport.create({ user: userId, report: data });
 
   const downloadUrl = `${BASE_URL}/doc/${path.basename(filePath)}`;
   return { downloadUrl };
