@@ -1,7 +1,7 @@
 /* eslint-disable arrow-body-style */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable quotes */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import status from "http-status";
 import AppError from "../../errors/AppError";
