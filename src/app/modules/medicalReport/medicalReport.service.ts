@@ -99,6 +99,7 @@ const getAiResponse = async (
 
   return JSON.parse(summaryRes);
 };
+
 export const saveAiResponse = async (
   data: MedicalSection[],
   userId: string
